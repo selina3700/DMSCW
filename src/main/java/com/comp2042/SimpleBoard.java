@@ -8,20 +8,35 @@ import java.awt.*;
 
 public class SimpleBoard implements Board {
 
+    //Dimensions of the board
     private final int width;
     private final int height;
+
+    //Generate new random bricks
     private final BrickGenerator brickGenerator;
+
+    //Rotate bricks
     private final BrickRotator brickRotator;
+
+    //Main board matrix
     private int[][] currentGameMatrix;
+
+    //Current position of falling bricks
     private Point currentOffset;
+
+    //Player's Score
     private final Score score;
 
     public SimpleBoard(int width, int height) {
         this.width = width;
         this.height = height;
+        //Empty Board
         currentGameMatrix = new int[width][height];
+        //Empty Board
         brickGenerator = new RandomBrickGenerator();
+        //Rotates Bricks
         brickRotator = new BrickRotator();
+        //Score System
         score = new Score();
     }
 
@@ -32,8 +47,10 @@ public class SimpleBoard implements Board {
         p.translate(0, 1);
         boolean conflict = MatrixOperations.intersect(currentMatrix, brickRotator.getCurrentShape(), (int) p.getX(), (int) p.getY());
         if (conflict) {
+            //Collision means that the brick cannot move further
             return false;
         } else {
+            //Update position if no collision
             currentOffset = p;
             return true;
         }
@@ -74,8 +91,10 @@ public class SimpleBoard implements Board {
         NextShapeInfo nextShape = brickRotator.getNextShape();
         boolean conflict = MatrixOperations.intersect(currentMatrix, nextShape.getShape(), (int) currentOffset.getX(), (int) currentOffset.getY());
         if (conflict) {
+            //Cannot rotate because of collision
             return false;
         } else {
+            //Safe to rotate
             brickRotator.setCurrentShape(nextShape.getPosition());
             return true;
         }
@@ -83,8 +102,11 @@ public class SimpleBoard implements Board {
 
     @Override
     public boolean createNewBrick() {
+        //New random brick in a random rotation
         Brick currentBrick = brickGenerator.getBrick();
         brickRotator.setBrick(currentBrick);
+
+        //Start position / Maximum point
         currentOffset = new Point(4, 10);
         return MatrixOperations.intersect(currentGameMatrix, brickRotator.getCurrentShape(), (int) currentOffset.getX(), (int) currentOffset.getY());
     }
@@ -120,8 +142,11 @@ public class SimpleBoard implements Board {
 
     @Override
     public void newGame() {
+        //Clear matrix and reset score
         currentGameMatrix = new int[width][height];
         score.reset();
+
+        //Start with a new brick
         createNewBrick();
     }
 }

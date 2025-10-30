@@ -14,20 +14,30 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
 
+        //Defines the game layout
         URL location = getClass().getClassLoader().getResource("gameLayout.fxml");
         ResourceBundle resources = null;
+
+        //Load the layout and its controller
         FXMLLoader fxmlLoader = new FXMLLoader(location, resources);
+
+        //Load FXML into parent node
         Parent root = fxmlLoader.load();
+
+        //Get the controller
         GuiController c = fxmlLoader.getController();
 
+        //Title
         primaryStage.setTitle("TetrisJFX");
+
+        //Scene
         Scene scene = new Scene(root, 300, 510);
         primaryStage.setScene(scene);
         primaryStage.show();
         new GameController(c);
     }
 
-
+    //Launch Application
     public static void main(String[] args) {
         launch(args);
     }

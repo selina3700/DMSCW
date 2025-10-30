@@ -25,40 +25,42 @@ import java.util.ResourceBundle;
 
 public class GuiController implements Initializable {
 
+    //Tetris block size (20 px)
     private static final int BRICK_SIZE = 20;
 
-    @FXML
-    private GridPane gamePanel;
+    @FXML private GridPane gamePanel;
+    @FXML private Group groupNotification;
+    @FXML private GridPane brickPanel;
+    @FXML private GameOverPanel gameOverPanel;
 
-    @FXML
-    private Group groupNotification;
-
-    @FXML
-    private GridPane brickPanel;
-
-    @FXML
-    private GameOverPanel gameOverPanel;
-
+    //Visual layout of board and bricks
     private Rectangle[][] displayMatrix;
-
     private InputEventListener eventListener;
 
     private Rectangle[][] rectangles;
 
+    //Game Loop
     private Timeline timeLine;
 
+    //Game State
     private final BooleanProperty isPause = new SimpleBooleanProperty();
-
     private final BooleanProperty isGameOver = new SimpleBooleanProperty();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+
+        //Load digital-style font for the score
         Font.loadFont(getClass().getClassLoader().getResource("digital.ttf").toExternalForm(), 38);
+
+        //Receive keyboard input
         gamePanel.setFocusTraversable(true);
         gamePanel.requestFocus();
+
+        //Keyboard event handling (arrow keys)
         gamePanel.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent keyEvent) {
+                //Only can move if the game is not paused or over
                 if (isPause.getValue() == Boolean.FALSE && isGameOver.getValue() == Boolean.FALSE) {
                     if (keyEvent.getCode() == KeyCode.LEFT || keyEvent.getCode() == KeyCode.A) {
                         refreshBrick(eventListener.onLeftEvent(new MoveEvent(EventType.LEFT, EventSource.USER)));
@@ -77,13 +79,18 @@ public class GuiController implements Initializable {
                         keyEvent.consume();
                     }
                 }
+
+                //Press "N" to start a new game
                 if (keyEvent.getCode() == KeyCode.N) {
                     newGame(null);
                 }
             }
         });
+
+        //Hide the game over panel at the start of the game
         gameOverPanel.setVisible(false);
 
+        //Add a reflection effect for text or panels (visual)
         final Reflection reflection = new Reflection();
         reflection.setFraction(0.8);
         reflection.setTopOpacity(0.9);
@@ -91,6 +98,8 @@ public class GuiController implements Initializable {
     }
 
     public void initGameView(int[][] boardMatrix, ViewData brick) {
+
+        //Background grid
         displayMatrix = new Rectangle[boardMatrix.length][boardMatrix[0].length];
         for (int i = 2; i < boardMatrix.length; i++) {
             for (int j = 0; j < boardMatrix[i].length; j++) {
@@ -101,6 +110,7 @@ public class GuiController implements Initializable {
             }
         }
 
+        //Currently falling brick
         rectangles = new Rectangle[brick.getBrickData().length][brick.getBrickData()[0].length];
         for (int i = 0; i < brick.getBrickData().length; i++) {
             for (int j = 0; j < brick.getBrickData()[i].length; j++) {
@@ -110,10 +120,12 @@ public class GuiController implements Initializable {
                 brickPanel.add(rectangle, j, i);
             }
         }
+
+        //Position the brick at the correct location on the board
         brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * brickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
         brickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getyPosition() * brickPanel.getHgap() + brick.getyPosition() * BRICK_SIZE);
 
-
+        //Moves the brick down automatically
         timeLine = new Timeline(new KeyFrame(
                 Duration.millis(400),
                 ae -> moveDown(new MoveEvent(EventType.DOWN, EventSource.THREAD))
@@ -122,6 +134,7 @@ public class GuiController implements Initializable {
         timeLine.play();
     }
 
+    //Color for each brick piece
     private Paint getFillColor(int i) {
         Paint returnPaint;
         switch (i) {
@@ -156,7 +169,7 @@ public class GuiController implements Initializable {
         return returnPaint;
     }
 
-
+    //Update the visual position and appearance of the falling brick
     private void refreshBrick(ViewData brick) {
         if (isPause.getValue() == Boolean.FALSE) {
             brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * brickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
@@ -169,6 +182,7 @@ public class GuiController implements Initializable {
         }
     }
 
+    //Refreshes the entire game background
     public void refreshGameBackground(int[][] board) {
         for (int i = 2; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
@@ -177,25 +191,34 @@ public class GuiController implements Initializable {
         }
     }
 
+    //Apply color and rounded corners to the rectangles
     private void setRectangleData(int color, Rectangle rectangle) {
         rectangle.setFill(getFillColor(color));
         rectangle.setArcHeight(9);
         rectangle.setArcWidth(9);
     }
 
+    //Handles the action when a brick moves down
     private void moveDown(MoveEvent event) {
         if (isPause.getValue() == Boolean.FALSE) {
             DownData downData = eventListener.onDownEvent(event);
+
+            //If row was cleared, show floating score
             if (downData.getClearRow() != null && downData.getClearRow().getLinesRemoved() > 0) {
                 NotificationPanel notificationPanel = new NotificationPanel("+" + downData.getClearRow().getScoreBonus());
                 groupNotification.getChildren().add(notificationPanel);
                 notificationPanel.showScore(groupNotification.getChildren());
             }
+
+            //Update brick position
             refreshBrick(downData.getViewData());
         }
+
+        //Keep the game window focused so keys continue to work
         gamePanel.requestFocus();
     }
 
+    //Connect GUI controller with the InputEventListener
     public void setEventListener(InputEventListener eventListener) {
         this.eventListener = eventListener;
     }
@@ -203,12 +226,14 @@ public class GuiController implements Initializable {
     public void bindScore(IntegerProperty integerProperty) {
     }
 
+    //Displays game over screen and stop brick movement
     public void gameOver() {
         timeLine.stop();
         gameOverPanel.setVisible(true);
         isGameOver.setValue(Boolean.TRUE);
     }
 
+    //Reset the board and start a new game
     public void newGame(ActionEvent actionEvent) {
         timeLine.stop();
         gameOverPanel.setVisible(false);
@@ -219,6 +244,7 @@ public class GuiController implements Initializable {
         isGameOver.setValue(Boolean.FALSE);
     }
 
+    //Pause the game
     public void pauseGame(ActionEvent actionEvent) {
         gamePanel.requestFocus();
     }
