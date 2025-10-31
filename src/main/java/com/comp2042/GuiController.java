@@ -49,8 +49,8 @@ public class GuiController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        //Load digital-style font for the score
-        Font.loadFont(getClass().getClassLoader().getResource("digital.ttf").toExternalForm(), 38);
+        //Load and enable digital-style font for the score
+        Font.loadFont(getClass().getResourceAsStream("/digital.ttf"), 38);
 
         //Receive keyboard input
         gamePanel.setFocusTraversable(true);

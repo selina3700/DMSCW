@@ -32,7 +32,7 @@ public class SimpleBoard implements Board {
         this.height = height;
         //Empty Board
         currentGameMatrix = new int[width][height];
-        //Empty Board
+        //Spawn Pieces
         brickGenerator = new RandomBrickGenerator();
         //Rotates Bricks
         brickRotator = new BrickRotator();
@@ -107,7 +107,7 @@ public class SimpleBoard implements Board {
         brickRotator.setBrick(currentBrick);
 
         //Start position / Maximum point
-        currentOffset = new Point(4, 10);
+        currentOffset = new Point(4, 0); //Ensures that the start and end position is at the top of the page
         return MatrixOperations.intersect(currentGameMatrix, brickRotator.getCurrentShape(), (int) currentOffset.getX(), (int) currentOffset.getY());
     }
 
