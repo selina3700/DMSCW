@@ -32,8 +32,15 @@ public class Main extends Application {
 
         //Scene
         Scene scene = new Scene(root, 300, 510);
+        scene.getStylesheets().add(getClass().getResource("/window_style.css").toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.show();
+
+        URL css = getClass().getResource("/window_style.css");
+        System.out.println("CSS loaded from: " + css);
+        scene.getStylesheets().add(css.toExternalForm());
+
+
         new GameController(c);
     }
 

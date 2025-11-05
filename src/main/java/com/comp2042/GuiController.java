@@ -10,6 +10,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
+import javafx.scene.control.Labeled;
 import javafx.scene.effect.Reflection;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -32,6 +33,7 @@ public class GuiController implements Initializable {
     @FXML private Group groupNotification;
     @FXML private GridPane brickPanel;
     @FXML private GameOverPanel gameOverPanel;
+    @FXML private Labeled scoreLabel;
 
     //Visual layout of board and bricks
     private Rectangle[][] displayMatrix;
@@ -223,7 +225,11 @@ public class GuiController implements Initializable {
         this.eventListener = eventListener;
     }
 
-    public void bindScore(IntegerProperty integerProperty) {
+    public void bindScore(IntegerProperty scoreProperty) {
+        Font font = Font.loadFont(getClass().getResourceAsStream("/digital.ttf"), 38);
+        scoreLabel.getStyleClass().add("bindScoreStyle");
+        scoreLabel.setFont(font);
+        scoreLabel.textProperty().bind(scoreProperty.asString("Score: %d"));
     }
 
     //Displays game over screen and stop brick movement

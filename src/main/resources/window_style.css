@@ -64,6 +64,13 @@
     -fx-background-color: red;
 }
 
+.bindScoreStyle {
+    -fx-font-family: "Let's go Digital";
+    -fx-font-size: 20;
+    -fx-fill: yellow;
+    -fx-text-fill: yellow;
+}
+
 .scoreClass{
     -fx-font-family: "Let's go Digital";
     -fx-font-size: 38;
