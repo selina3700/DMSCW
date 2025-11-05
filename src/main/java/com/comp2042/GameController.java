@@ -2,6 +2,9 @@ package com.comp2042;
 
 public class GameController implements InputEventListener {
 
+    //Scoring and level system
+    private int level = 1;
+    private int LinesCleared = 0;
     //Main game board
     private Board board = new SimpleBoard(25, 10);
 
@@ -20,6 +23,13 @@ public class GameController implements InputEventListener {
         viewGuiController.bindScore(board.getScore().scoreProperty());
     }
 
+    //Increases the game speed everytime the level increases
+    private void increaseGameSpeed() {
+        double newSpeed = Math.max(100, 400 - (level - 1) * 20);
+        viewGuiController.setGameSpeed(newSpeed);
+        System.out.println("Level up! Level: " + level);
+    }
+
     @Override
     public DownData onDownEvent(MoveEvent event) {
         //Move brick down
@@ -36,8 +46,18 @@ public class GameController implements InputEventListener {
 
             //Add Score when rows are cleared
             if (clearRow.getLinesRemoved() > 0) {
+                int lines = clearRow.getLinesRemoved();
+                LinesCleared += lines;
+
+                //Increase level every 10 lines
+                if (LinesCleared / 10 >= level) {
+                    level++;
+                    increaseGameSpeed();
+                    viewGuiController.setLevel(level); // ✅ Update GUI label
+                }
                 board.getScore().add(clearRow.getScoreBonus());
             }
+
 
             //If new brick cannot be created, board is full.
             if (board.createNewBrick()) {

@@ -34,6 +34,7 @@ public class GuiController implements Initializable {
     @FXML private GridPane brickPanel;
     @FXML private GameOverPanel gameOverPanel;
     @FXML private Labeled scoreLabel;
+    @FXML private Labeled levelLabel;
 
     //Visual layout of board and bricks
     private Rectangle[][] displayMatrix;
@@ -232,6 +233,11 @@ public class GuiController implements Initializable {
         scoreLabel.textProperty().bind(scoreProperty.asString("Score: %d"));
     }
 
+    //Update Level
+    public void setLevel(int level){
+        levelLabel.setText("Level: "+ level);
+    }
+
     //Displays game over screen and stop brick movement
     public void gameOver() {
         timeLine.stop();
@@ -253,5 +259,8 @@ public class GuiController implements Initializable {
     //Pause the game
     public void pauseGame(ActionEvent actionEvent) {
         gamePanel.requestFocus();
+    }
+
+    public void setGameSpeed(double newSpeed) {
     }
 }

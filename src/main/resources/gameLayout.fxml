@@ -31,6 +31,12 @@
            styleClass="bindScoreStyle"
     />
 
+    <!-- Level Label -->
+    <Label fx:id="levelLabel" text="Level: 1"
+           layoutX="5" layoutY="50"
+           styleClass="scoreClass"
+    />
+
     <stylesheets>
         <URL value="@window_style.css"/>
     </stylesheets>
