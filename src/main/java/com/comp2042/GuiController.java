@@ -262,5 +262,13 @@ public class GuiController implements Initializable {
     }
 
     public void setGameSpeed(double newSpeed) {
+        if (timeLine != null) {
+            timeLine.stop();
+            timeLine.getKeyFrames().setAll(
+                    new KeyFrame(Duration.millis(newSpeed),
+                            ae -> moveDown(new MoveEvent(EventType.DOWN, EventSource.THREAD)))
+            );
+            timeLine.play();
+        }
     }
 }
