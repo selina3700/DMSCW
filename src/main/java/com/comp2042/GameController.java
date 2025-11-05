@@ -49,6 +49,9 @@ public class GameController implements InputEventListener {
                 int lines = clearRow.getLinesRemoved();
                 LinesCleared += lines;
 
+                //Update line count
+                viewGuiController.setLinesCleared(LinesCleared);
+
                 //Increase level every 10 lines
                 if (LinesCleared / 10 >= level) {
                     level++;

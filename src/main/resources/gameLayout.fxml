@@ -30,13 +30,20 @@
 
     <!-- Score label -->
     <Label fx:id="scoreLabel" text="Score: 0"
-           layoutX="5" layoutY="20"
+           layoutX="10" layoutY="20"
            styleClass="bindScoreStyle"
     />
 
     <!-- Level Label -->
     <Label fx:id="levelLabel" text="Level: 1"
-           layoutX="5" layoutY="50"
+           layoutX="10" layoutY="50"
+           styleClass="scoreClass"
+    />
+
+    <!-- Lines cleared label -->
+    <Label fx:id="linesLabel"
+           text="Lines: 0"
+           layoutX="10" layoutY="80"
            styleClass="scoreClass"
     />
 

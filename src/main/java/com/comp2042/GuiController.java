@@ -35,6 +35,8 @@ public class GuiController implements Initializable {
     @FXML private GameOverPanel gameOverPanel;
     @FXML private Labeled scoreLabel;
     @FXML private Labeled levelLabel;
+    @FXML private Labeled linesLabel;
+
 
     //Visual layout of board and bricks
     private Rectangle[][] displayMatrix;
@@ -236,6 +238,11 @@ public class GuiController implements Initializable {
     //Update Level
     public void setLevel(int level){
         levelLabel.setText("Level: "+ level);
+    }
+
+    // Update Lines Cleared
+    public void setLinesCleared(int lines) {
+        linesLabel.setText("Lines: " + lines);
     }
 
     //Displays game over screen and stop brick movement
