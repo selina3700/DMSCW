@@ -111,6 +111,11 @@ public class SimpleBoard implements Board {
         return MatrixOperations.intersect(currentGameMatrix, brickRotator.getCurrentShape(), (int) currentOffset.getX(), (int) currentOffset.getY());
     }
 
+    // Add this public method to SimpleBoard class
+    public boolean isValidPosition(int[][] brickData, int x, int y) {
+        return !MatrixOperations.intersect(currentGameMatrix, brickData, x, y);
+    }
+
     @Override
     public int[][] getBoardMatrix() {
         return currentGameMatrix;
@@ -138,7 +143,6 @@ public class SimpleBoard implements Board {
     public Score getScore() {
         return score;
     }
-
 
     @Override
     public void newGame() {

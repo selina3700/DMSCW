@@ -2,10 +2,11 @@ package com.comp2042;
 
 public final class ViewData {
 
-    private final int[][] brickData;
-    private final int xPosition;
-    private final int yPosition;
+    private int[][] brickData;
+    private int xPosition;
+    private int yPosition;
     private final int[][] nextBrickData;
+
 
     public ViewData(int[][] brickData, int xPosition, int yPosition, int[][] nextBrickData) {
         this.brickData = brickData;

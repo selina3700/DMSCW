@@ -29,6 +29,14 @@ public class GameController implements InputEventListener {
         viewGuiController.setGameSpeed(newSpeed);
     }
 
+    // Add this public method to GameController
+    public boolean canPlaceBrickAtPosition(int[][] brickData, int x, int y) {
+        if (board instanceof SimpleBoard) {
+            return ((SimpleBoard) board).isValidPosition(brickData, x, y);
+        }
+        return false;
+    }
+
     @Override
     public DownData onDownEvent(MoveEvent event) {
         //Move brick down
@@ -95,10 +103,15 @@ public class GameController implements InputEventListener {
         return board.getViewData();
     }
 
-
     @Override
     public void createNewGame() {
         board.newGame();
+        //Reset level and lines cleared
+        level = 1;
+        LinesCleared = 0;
+        //Update GUI
+        viewGuiController.setLevel(level);
+        viewGuiController.setLinesCleared(LinesCleared);
         viewGuiController.refreshGameBackground(board.getBoardMatrix());
     }
 }
