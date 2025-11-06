@@ -31,7 +31,7 @@ public class Main extends Application {
         primaryStage.setTitle("TetrisJFX");
 
         //Scene/Window
-        Scene scene = new Scene(root, 400, 510);
+        Scene scene = new Scene(root, 400, 550);
         scene.getStylesheets().add(getClass().getResource("/window_style.css").toExternalForm());
         primaryStage.setScene(scene);
 

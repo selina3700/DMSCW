@@ -9,14 +9,14 @@
 <Pane fx:controller="com.comp2042.GuiController"
       xmlns:fx="http://javafx.com/fxml">
 
-    <Group layoutX="110">
+    <Group layoutX="110" layoutY="10">
         <!-- Falling brick panel -->
         <GridPane fx:id="brickPanel" vgap="1" hgap="1"/>
 
         <!-- Main game board -->
         <BorderPane styleClass="gameBoard" fx:id="gameBoard">
             <center>
-                <GridPane fx:id="gamePanel" hgap="1" vgap="1" layoutY="30" layoutX="60"/>
+                <GridPane fx:id="gamePanel" hgap="1" vgap="1"/>
             </center>
         </BorderPane>
 

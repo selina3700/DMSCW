@@ -127,8 +127,9 @@ public class GuiController implements Initializable {
         }
 
         //Position the brick at the correct location on the board
-        brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * brickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
-        brickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getyPosition() * brickPanel.getHgap() + brick.getyPosition() * BRICK_SIZE);
+        double gapSize = 1.0;
+        brickPanel.setLayoutX(gamePanel.getLayoutX() + (brick.getxPosition() * (BRICK_SIZE)));
+        brickPanel.setLayoutY(gamePanel.getLayoutY() + ((brick.getyPosition() - 2) * (BRICK_SIZE)));
 
         //Moves the brick down automatically
         timeLine = new Timeline(new KeyFrame(
@@ -179,6 +180,13 @@ public class GuiController implements Initializable {
         if (isPause.getValue() == Boolean.FALSE) {
             brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * brickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
             brickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getyPosition() * brickPanel.getHgap() + brick.getyPosition() * BRICK_SIZE);
+
+            if (brick.getyPosition() < 1) {
+                brickPanel.setVisible(false);
+            } else {
+                brickPanel.setVisible(true);
+            }
+
             for (int i = 0; i < brick.getBrickData().length; i++) {
                 for (int j = 0; j < brick.getBrickData()[i].length; j++) {
                     setRectangleData(brick.getBrickData()[i][j], rectangles[i][j]);

@@ -27,7 +27,6 @@ public class GameController implements InputEventListener {
     private void increaseGameSpeed() {
         double newSpeed = Math.max(100, 400 - (level - 1) * 20);
         viewGuiController.setGameSpeed(newSpeed);
-        System.out.println("Level up! Level: " + level);
     }
 
     @Override
