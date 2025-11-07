@@ -45,7 +45,6 @@ public class Main extends Application {
         System.out.println("CSS loaded from: " + css);
         scene.getStylesheets().add(css.toExternalForm());
 
-
         new GameController(c);
     }
 

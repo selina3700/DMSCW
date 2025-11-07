@@ -47,6 +47,9 @@
            styleClass="scoreClass"
     />
 
+    <!-- Pause Button -->
+    <Pane fx:id="buttonGroup" layoutX="345" layoutY="10" prefWidth="200" prefHeight="100"/>
+
     <stylesheets>
         <URL value="@window_style.css"/>
     </stylesheets>

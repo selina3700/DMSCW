@@ -12,6 +12,10 @@ import javafx.fxml.Initializable;
 import javafx.scene.Group;
 import javafx.scene.control.Labeled;
 import javafx.scene.effect.Reflection;
+import javafx.scene.control.Button;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
@@ -36,7 +40,7 @@ public class GuiController implements Initializable {
     @FXML private Labeled scoreLabel;
     @FXML private Labeled levelLabel;
     @FXML private Labeled linesLabel;
-
+    @FXML private Pane buttonGroup;
 
     //Visual layout of board and bricks
     private Rectangle[][] displayMatrix;
@@ -100,6 +104,8 @@ public class GuiController implements Initializable {
         reflection.setFraction(0.8);
         reflection.setTopOpacity(0.9);
         reflection.setTopOffset(-12);
+
+        setupPauseButton();
     }
 
     public void initGameView(int[][] boardMatrix, ViewData brick) {
@@ -284,6 +290,30 @@ public class GuiController implements Initializable {
         }
 
         gamePanel.requestFocus();
+    }
+
+    private void setupPauseButton() {
+        Image pauseImg = new Image(getClass().getResource("/Pause_Button.png").toExternalForm());
+        Image pauseAfterImg = new Image(getClass().getResource("/Pause_After.png").toExternalForm());
+        ImageView pauseView = new ImageView(pauseImg);
+        pauseView.setFitWidth(40);
+        pauseView.setFitHeight(40);
+
+        pauseView.setLayoutX(10);
+        pauseView.setLayoutY(10);
+
+        //Clicked
+        pauseView.setOnMousePressed(event -> pauseView.setImage(pauseAfterImg));
+        pauseView.setOnMouseExited(event -> pauseView.setImage(pauseImg));
+        //Hover
+        pauseView.setOnMouseEntered(event -> pauseView.setImage(pauseAfterImg));
+        pauseView.setOnMouseReleased(event -> pauseView.setImage(pauseImg));
+
+        //Clickable Image
+        pauseView.setOnMouseClicked(event -> pauseGame(null));
+        //Cursor
+        pauseView.setStyle("-fx-cursor: hand;");
+        buttonGroup.getChildren().add(pauseView);
     }
 
     public void setGameSpeed(double newSpeed) {
