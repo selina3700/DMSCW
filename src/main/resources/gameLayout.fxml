@@ -9,7 +9,7 @@
 <Pane fx:controller="com.comp2042.GuiController"
       xmlns:fx="http://javafx.com/fxml">
 
-    <Group layoutX="110" layoutY="10">
+    <Group layoutX="140" layoutY="10">
         <!-- Falling brick panel -->
         <GridPane fx:id="brickPanel" vgap="1" hgap="1"/>
 
@@ -27,30 +27,35 @@
             </VBox>
         </Group>
     </Group>
+    <VBox fx:id="leftPanel">
+        <!-- Score label -->
+        <Label fx:id="scoreLabel" text="Score: 0"
+               styleClass="bindScoreStyle"
+        />
 
-    <!-- Score label -->
-    <Label fx:id="scoreLabel" text="Score: 0"
-           layoutX="10" layoutY="20"
-           styleClass="bindScoreStyle"
-    />
+        <!-- Level Label -->
+        <Label fx:id="levelLabel" text="Level: 1"
+               styleClass="scoreClass"
+        />
 
-    <!-- Level Label -->
-    <Label fx:id="levelLabel" text="Level: 1"
-           layoutX="10" layoutY="50"
-           styleClass="scoreClass"
-    />
+        <!-- Lines cleared label -->
+        <Label fx:id="linesLabel"
+               text="Lines: 0"
+               styleClass="scoreClass"
+        />
 
-    <!-- Lines cleared label -->
-    <Label fx:id="linesLabel"
-           text="Lines: 0"
-           layoutX="10" layoutY="80"
-           styleClass="scoreClass"
-    />
+        <!-- Next Brick -->
+        <VBox fx:id="nextBrickContainer" spacing="10">
+            <Label fx:id="nextBrickLabel" text="Next:" styleClass="nextBrickLabel"/>
+            <GridPane fx:id="nextBrickPanel" styleClass="nextBrick" prefWidth="120" prefHeight="120"/>
+        </VBox>
+    </VBox>
 
     <!-- Pause Button -->
-    <Pane fx:id="buttonGroup" layoutX="345" layoutY="10" prefWidth="200" prefHeight="100"/>
+    <Pane fx:id="buttonGroup" layoutX="380" layoutY="10" prefWidth="200" prefHeight="100"/>
 
     <stylesheets>
         <URL value="@window_style.css"/>
     </stylesheets>
 </Pane>
+

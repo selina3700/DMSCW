@@ -9,7 +9,9 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
+import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
 import javafx.scene.effect.Reflection;
 import javafx.scene.control.Button;
@@ -19,6 +21,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
@@ -41,12 +44,17 @@ public class GuiController implements Initializable {
     @FXML private Labeled levelLabel;
     @FXML private Labeled linesLabel;
     @FXML private Pane buttonGroup;
+    @FXML private VBox nextBrickContainer;
+    @FXML private Label nextBrickLabel;
+    @FXML private GridPane nextBrickPanel;
 
     //Visual layout of board and bricks
     private Rectangle[][] displayMatrix;
     private InputEventListener eventListener;
 
     private Rectangle[][] rectangles;
+
+    private Rectangle[][] nextBrickRectangles;
 
     //Game Loop
     private Timeline timeLine;
@@ -144,6 +152,8 @@ public class GuiController implements Initializable {
         ));
         timeLine.setCycleCount(Timeline.INDEFINITE);
         timeLine.play();
+
+        generateNextBrickPreview(brick.getNextBrickData());
     }
 
     //Color for each brick piece
@@ -198,6 +208,11 @@ public class GuiController implements Initializable {
                     setRectangleData(brick.getBrickData()[i][j], rectangles[i][j]);
                 }
             }
+
+            if (brick.getNextBrickData() != null) {
+                generateNextBrickPreview(brick.getNextBrickData());
+            }
+
         }
     }
 
@@ -325,5 +340,37 @@ public class GuiController implements Initializable {
             );
             timeLine.play();
         }
+    }
+
+    private void generateNextBrickPreview(int[][] nextBrickData) {
+        nextBrickPanel.getChildren().clear();
+        nextBrickPanel.getColumnConstraints().clear();
+        nextBrickPanel.getRowConstraints().clear();
+
+        int brickRows = nextBrickData.length;
+        int brickCols = nextBrickData[0].length;
+
+        int previewRows = (int) (nextBrickPanel.getPrefHeight() / BRICK_SIZE);
+        int previewCols = (int) (nextBrickPanel.getPrefWidth() / BRICK_SIZE);
+
+        // Offsets to center the brick
+        int rowOffset = (previewRows - brickRows) / 2;
+        int colOffset = (previewCols - brickCols) / 2;
+
+        for (int i = 0; i < brickRows; i++) {
+            for (int j = 0; j < brickCols; j++) {
+                if (nextBrickData[i][j] != 0) {
+                    Rectangle rect = new Rectangle(BRICK_SIZE, BRICK_SIZE);
+                    rect.setArcWidth(9);
+                    rect.setArcHeight(9);
+                    rect.setFill(getFillColor(nextBrickData[i][j]));
+
+                    // Add with offset so it's centered
+                    nextBrickPanel.add(rect, j + colOffset, i + rowOffset);
+                }
+            }
+        }
+
+        nextBrickPanel.setVisible(true);
     }
 }

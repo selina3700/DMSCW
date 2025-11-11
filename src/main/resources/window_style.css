@@ -78,3 +78,20 @@
     -fx-fill: yellow;
     -fx-text-fill: yellow;
 }
+
+.nextBrickLabel {
+    -fx-font-family: "Let's go Digital";
+    -fx-font-size: 20px;
+    -fx-text-fill: yellow;
+}
+
+.nextBrick {
+    -fx-border-width: 10px;
+    -fx-border-color: whitesmoke;
+    -fx-border-radius: 10px;
+    -fx-alignment: center;
+}
+
+#leftPanel{
+    -fx-padding: 10 10 30 10;
+}
