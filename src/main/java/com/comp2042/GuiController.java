@@ -8,6 +8,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -21,6 +22,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -47,6 +49,8 @@ public class GuiController implements Initializable {
     @FXML private VBox nextBrickContainer;
     @FXML private Label nextBrickLabel;
     @FXML private GridPane nextBrickPanel;
+    @FXML private StackPane pauseMenu;
+
 
     //Visual layout of board and bricks
     private Rectangle[][] displayMatrix;
@@ -295,13 +299,12 @@ public class GuiController implements Initializable {
     //Pause the game
     public void pauseGame(ActionEvent actionEvent) {
         if (isPause.get()) {
-            //Resume
-            timeLine.play();
-            isPause.set(false);
+            resumeGame();
+            hidePauseMenu();
         } else {
-            //Pause
             timeLine.pause();
             isPause.set(true);
+            showPauseMenu();
         }
 
         gamePanel.requestFocus();
@@ -370,7 +373,42 @@ public class GuiController implements Initializable {
                 }
             }
         }
-
         nextBrickPanel.setVisible(true);
     }
+
+    public void showPauseMenu() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/PauseMenu.fxml"));
+            pauseMenu = loader.load();
+
+            PauseMenu controller = loader.getController();
+            controller.setGuiController(this);
+
+            // Add the menu to the root layout (assuming your root is a Pane)
+            ((Pane) gamePanel.getScene().getRoot()).getChildren().add(pauseMenu);
+
+            pauseMenu.setLayoutX((gamePanel.getScene().getWidth() - pauseMenu.getPrefWidth()) / 2);
+            pauseMenu.setLayoutY((gamePanel.getScene().getHeight() - pauseMenu.getPrefHeight()) / 2);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void hidePauseMenu() {
+        if (pauseMenu != null) {
+            ((Pane) gamePanel.getScene().getRoot()).getChildren().remove(pauseMenu);
+            pauseMenu = null;
+        }
+    }
+
+    public void resumeGame() {
+        timeLine.play();
+        isPause.set(false);
+    }
+
+    public GridPane getGamePanel() {
+        return gamePanel;
+    }
+
 }

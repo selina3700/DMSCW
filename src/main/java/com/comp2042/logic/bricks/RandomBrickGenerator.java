@@ -21,6 +21,8 @@ public class RandomBrickGenerator implements BrickGenerator {
         brickList.add(new SBrick());
         brickList.add(new TBrick());
         brickList.add(new ZBrick());
+
+        //Randomly pick 2 bricks and add them to nextBricks
         nextBricks.add(brickList.get(ThreadLocalRandom.current().nextInt(brickList.size())));
         nextBricks.add(brickList.get(ThreadLocalRandom.current().nextInt(brickList.size())));
     }
@@ -28,12 +30,14 @@ public class RandomBrickGenerator implements BrickGenerator {
     @Override
     public Brick getBrick() {
         if (nextBricks.size() <= 1) {
+            //Add new random brick to the queue
             nextBricks.add(brickList.get(ThreadLocalRandom.current().nextInt(brickList.size())));
         }
         return nextBricks.poll();
     }
 
     @Override
+    //Used for displaying next brick
     public Brick getNextBrick() {
         return nextBricks.peek();
     }

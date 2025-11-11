@@ -5,8 +5,9 @@ import com.comp2042.logic.bricks.Brick;
 public class BrickRotator {
 
     private Brick brick;
-    private int currentShape = 0;
+    private int currentShape = 0; //Current rotation of the brick
 
+    //Calculates the next rotation of the brick
     public NextShapeInfo getNextShape() {
         int nextShape = currentShape;
         nextShape = (++nextShape) % brick.getShapeMatrix().size();
@@ -21,6 +22,7 @@ public class BrickRotator {
         this.currentShape = currentShape;
     }
 
+    //Sets a new brick for rotation
     public void setBrick(Brick brick) {
         this.brick = brick;
         currentShape = 0;

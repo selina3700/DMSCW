@@ -2,16 +2,9 @@
     -fx-background-image: url("background_image.png");
 }
 
-.nextBrick {
-    -fx-border-width: 2px;
-    -fx-border-color: whitesmoke;
-    -fx-border-radius: 17px;
-}
-
 .gameBoard {
-    -fx-border-color: linear-gradient(#2A5058, #61a2b1);
+    -fx-border-color: #61a2b1;
     -fx-border-width: 12px;
-    -fx-border-radius: 12px;
     -fx-padding: 0;
 }
 
@@ -87,8 +80,7 @@
 
 .nextBrick {
     -fx-border-width: 10px;
-    -fx-border-color: whitesmoke;
-    -fx-border-radius: 10px;
+    -fx-border-color: #61a2b1;
     -fx-alignment: center;
 }
 
