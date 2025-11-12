@@ -77,7 +77,7 @@ public class GuiController implements Initializable {
         gamePanel.setFocusTraversable(true);
         gamePanel.requestFocus();
 
-        //Keyboard event handling (arrow keys)
+        //Key event handling
         gamePanel.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent keyEvent) {
@@ -97,6 +97,10 @@ public class GuiController implements Initializable {
                     }
                     if (keyEvent.getCode() == KeyCode.DOWN || keyEvent.getCode() == KeyCode.S) {
                         moveDown(new MoveEvent(EventType.DOWN, EventSource.USER));
+                        keyEvent.consume();
+                    }
+                    if (keyEvent.getCode() == KeyCode.SPACE) {
+                        hardDrop();
                         keyEvent.consume();
                     }
                 }
@@ -284,6 +288,39 @@ public class GuiController implements Initializable {
         gameOverPanel.setVisible(true);
         isGameOver.setValue(Boolean.TRUE);
     }
+
+    //Drops the brick immediately
+    private void hardDrop() {
+        if (isPause.getValue() == Boolean.FALSE && isGameOver.getValue() == Boolean.FALSE) {
+            boolean canMoveDown = true;
+            MoveEvent downEvent = new MoveEvent(EventType.DOWN, EventSource.USER);
+            DownData downData = null;
+
+            // Drop until the brick can't move further
+            while (canMoveDown) {
+                downData = eventListener.onDownEvent(downEvent);
+                if (!downData.isMoved()) {
+                    canMoveDown = false;
+                }
+            }
+
+            // Update the view one last time (locked position)
+            if (downData != null) {
+                refreshBrick(downData.getViewData());
+
+                // Handle row clearing animation if needed
+                if (downData.getClearRow() != null && downData.getClearRow().getLinesRemoved() > 0) {
+                    NotificationPanel notificationPanel = new NotificationPanel("+" + downData.getClearRow().getScoreBonus());
+                    groupNotification.getChildren().add(notificationPanel);
+                    notificationPanel.showScore(groupNotification.getChildren());
+                }
+            }
+
+            // Keep focus so keys continue to work
+            gamePanel.requestFocus();
+        }
+    }
+
 
     //Reset the board and start a new game
     public void newGame(ActionEvent actionEvent) {

@@ -82,7 +82,7 @@ public class GameController implements InputEventListener {
                 board.getScore().add(1);
             }
         }
-        return new DownData(clearRow, board.getViewData());
+        return new DownData(clearRow, board.getViewData(), canMove);
     }
 
     @Override
