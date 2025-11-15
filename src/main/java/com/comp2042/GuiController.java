@@ -126,8 +126,7 @@ public class GuiController implements Initializable {
         setupPauseButton();
     }
 
-    public void initGameView(int[][] boardMatrix, ViewData brick) {
-
+    public void initGameView(int[][] boardMatrix, ViewData brick, double initialSpeed) {
         //Background grid
         displayMatrix = new Rectangle[boardMatrix.length][boardMatrix[0].length];
         for (int i = 2; i < boardMatrix.length; i++) {
@@ -155,9 +154,9 @@ public class GuiController implements Initializable {
         brickPanel.setLayoutX(gamePanel.getLayoutX() + (brick.getxPosition() * (BRICK_SIZE)));
         brickPanel.setLayoutY(gamePanel.getLayoutY() + ((brick.getyPosition() - 2) * (BRICK_SIZE)));
 
-        //Moves the brick down automatically
+        //Moves the brick down automatically with the specified speed
         timeLine = new Timeline(new KeyFrame(
-                Duration.millis(400),
+                Duration.millis(initialSpeed),  // Use the passed speed instead of hardcoded 400
                 ae -> moveDown(new MoveEvent(EventType.DOWN, EventSource.THREAD))
         ));
         timeLine.setCycleCount(Timeline.INDEFINITE);

@@ -17,10 +17,20 @@ public class GameController implements InputEventListener {
         board.createNewBrick();
         //Connect input handling
         viewGuiController.setEventListener(this);
-        //Initial board and brick
-        viewGuiController.initGameView(board.getBoardMatrix(), board.getViewData());
+
+        // Calculate initial speed based on starting level
+        double initialSpeed = Math.max(100, 400 - (level - 1) * 20);
+
+        //Initial board and brick with speed
+        viewGuiController.initGameView(board.getBoardMatrix(), board.getViewData(), initialSpeed);
         //Bind score label to the score value
         viewGuiController.bindScore(board.getScore().scoreProperty());
+
+        // Update GUI labels
+        viewGuiController.setLevel(level);
+        viewGuiController.setLinesCleared(LinesCleared);
+
+        System.out.println("Starting at Level " + level + " - Speed: " + initialSpeed + "ms");
     }
 
     //Increases the game speed everytime the level increases
@@ -113,5 +123,7 @@ public class GameController implements InputEventListener {
         viewGuiController.setLevel(level);
         viewGuiController.setLinesCleared(LinesCleared);
         viewGuiController.refreshGameBackground(board.getBoardMatrix());
+
+        viewGuiController.setGameSpeed(400);
     }
 }
