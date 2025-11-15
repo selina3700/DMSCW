@@ -56,7 +56,6 @@ public class SimpleBoard implements Board {
         }
     }
 
-
     @Override
     public boolean moveBrickLeft() {
         int[][] currentMatrix = MatrixOperations.copy(currentGameMatrix);

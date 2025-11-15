@@ -11,44 +11,62 @@ import java.util.ResourceBundle;
 
 public class Main extends Application {
 
+    private static Stage primaryStage;
+    private static Scene scene;
+
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage stage) throws Exception {
+        primaryStage = stage;
 
-        //Defines the game layout
-        URL location = getClass().getClassLoader().getResource("gameLayout.fxml");
-        ResourceBundle resources = null;
+        // Load the main menu first
+        FXMLLoader menuLoader = new FXMLLoader(getClass().getResource("/mainMenu.fxml"));
+        Parent menuRoot = menuLoader.load();
 
-        //Load the layout and its controller
-        FXMLLoader fxmlLoader = new FXMLLoader(location, resources);
+        // Get the MainMenu controller and set up the stage reference
+        MainMenu mainMenuController = menuLoader.getController();
+        mainMenuController.setPrimaryStage(primaryStage);
 
-        //Load FXML into parent node
-        Parent root = fxmlLoader.load();
-
-        //Get the controller
-        GuiController c = fxmlLoader.getController();
-
-        //Title
+        // Title
         primaryStage.setTitle("TetrisJFX");
 
-        //Scene/Window
-        Scene scene = new Scene(root, 450, 550);
+        // Scene/Window with main menu
+        scene = new Scene(menuRoot, 450, 550);
         scene.getStylesheets().add(getClass().getResource("/window_style.css").toExternalForm());
         primaryStage.setScene(scene);
 
-        //Disable Maximizing and Resizing
+        // Disable Maximizing and Resizing
         primaryStage.setResizable(false);
         primaryStage.setMaximized(false);
 
         primaryStage.show();
-
-        URL css = getClass().getResource("/window_style.css");
-        System.out.println("CSS loaded from: " + css);
-        scene.getStylesheets().add(css.toExternalForm());
-
-        new GameController(c);
     }
 
-    //Launch Application
+    // Method to start the game from main menu
+    public static void startGame() {
+        try {
+            // Load the game layout
+            URL location = Main.class.getClassLoader().getResource("gameLayout.fxml");
+            ResourceBundle resources = null;
+
+            FXMLLoader fxmlLoader = new FXMLLoader(location, resources);
+            Parent root = fxmlLoader.load();
+
+            // Get the controller
+            GuiController c = fxmlLoader.getController();
+
+            // Replace the scene with the game
+            scene.setRoot(root);
+
+            // Initialize the game
+            new GameController(c);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error starting game: " + e.getMessage());
+        }
+    }
+
+    // Launch Application
     public static void main(String[] args) {
         launch(args);
     }

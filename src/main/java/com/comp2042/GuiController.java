@@ -28,6 +28,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.net.URL;
@@ -50,6 +51,7 @@ public class GuiController implements Initializable {
     @FXML private Label nextBrickLabel;
     @FXML private GridPane nextBrickPanel;
     @FXML private StackPane pauseMenu;
+    @FXML private Pane originalGameView;
 
 
     //Visual layout of board and bricks
@@ -321,7 +323,6 @@ public class GuiController implements Initializable {
         }
     }
 
-
     //Reset the board and start a new game
     public void newGame(ActionEvent actionEvent) {
         timeLine.stop();
@@ -415,20 +416,72 @@ public class GuiController implements Initializable {
 
     public void showPauseMenu() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/PauseMenu.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/pauseMenu.fxml"));
             pauseMenu = loader.load();
 
             PauseMenu controller = loader.getController();
             controller.setGuiController(this);
 
-            // Add the menu to the root layout (assuming your root is a Pane)
-            ((Pane) gamePanel.getScene().getRoot()).getChildren().add(pauseMenu);
+            Pane root = (Pane) gamePanel.getScene().getRoot();
 
-            pauseMenu.setLayoutX((gamePanel.getScene().getWidth() - pauseMenu.getPrefWidth()) / 2);
-            pauseMenu.setLayoutY((gamePanel.getScene().getHeight() - pauseMenu.getPrefHeight()) / 2);
+            pauseMenu.setPrefSize(root.getWidth(), root.getHeight());
+            pauseMenu.prefWidthProperty().bind(root.widthProperty());
+            pauseMenu.prefHeightProperty().bind(root.heightProperty());
+
+            root.getChildren().add(pauseMenu);
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public void showMainMenu() {
+        try {
+            // Stop the game
+            if (timeLine != null) {
+                timeLine.stop();
+            }
+
+            // Hide pause menu if it's showing
+            hidePauseMenu();
+
+            // Load the main menu FXML
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/mainMenu.fxml"));
+            StackPane mainMenuPane = loader.load();
+
+            // Set the controller
+            MainMenu mainMenuController = loader.getController();
+            mainMenuController.setPrimaryStage((Stage) gamePanel.getScene().getWindow());
+
+            // Replace the scene root with main menu
+            gamePanel.getScene().setRoot(mainMenuPane);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error loading main menu: " + e.getMessage());
+        }
+    }
+
+    public void startGameFromMenu() {
+        try {
+            // Get the root pane
+            Pane root = (Pane) gamePanel.getScene().getRoot();
+
+            // Clear the main menu
+            root.getChildren().clear();
+
+            // Re-add the original game view (which should be the parent of gamePanel)
+            root.getChildren().add(gamePanel.getParent());
+
+            // Start a new game
+            newGame(null);
+
+            // Make sure game panel has focus
+            gamePanel.requestFocus();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error starting game: " + e.getMessage());
         }
     }
 

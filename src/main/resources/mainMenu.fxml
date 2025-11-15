@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.image.ImageView?>
+
+<?import java.net.URL?>
+<?import javafx.scene.layout.HBox?>
+<StackPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.comp2042.MainMenu"
+           maxWidth="Infinity" maxHeight="Infinity" styleClass="pause-root">
+
+    <VBox alignment="CENTER" spacing="20" styleClass="buttons-container"
+          prefHeight="498" prefWidth="402" maxHeight="498" maxWidth="402">
+        <!-- Logo -->
+        <ImageView fx:id="logoImage" fitWidth="346" fitHeight="219" preserveRatio="true" />
+
+        <!-- Buttons -->
+        <ImageView fx:id="startButton" fitWidth="276" fitHeight="57"/>
+        <ImageView fx:id="optionsButton" fitWidth="276" fitHeight="57"/>
+        <ImageView fx:id="quitButton" fitWidth="276" fitHeight="57"/>
+    </VBox>
+
+    <stylesheets>
+        <URL value="@pauseMenu.css"/>
+    </stylesheets>
+</StackPane>
