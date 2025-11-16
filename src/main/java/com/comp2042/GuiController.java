@@ -30,6 +30,10 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import java.io.File;
+
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -69,6 +73,8 @@ public class GuiController implements Initializable {
     private final BooleanProperty isPause = new SimpleBooleanProperty();
     private final BooleanProperty isGameOver = new SimpleBooleanProperty();
 
+    //BGM
+    private MediaPlayer bgmPlayer;
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
@@ -124,6 +130,8 @@ public class GuiController implements Initializable {
         reflection.setTopOffset(-12);
 
         setupPauseButton();
+
+        initializeBackgroundMusic();
     }
 
     public void initGameView(int[][] boardMatrix, ViewData brick, double initialSpeed) {
@@ -288,6 +296,7 @@ public class GuiController implements Initializable {
         timeLine.stop();
         gameOverPanel.setVisible(true);
         isGameOver.setValue(Boolean.TRUE);
+        if (bgmPlayer != null) bgmPlayer.stop();
     }
 
     //Drops the brick immediately
@@ -331,6 +340,12 @@ public class GuiController implements Initializable {
         timeLine.play();
         isPause.setValue(Boolean.FALSE);
         isGameOver.setValue(Boolean.FALSE);
+
+        if (bgmPlayer != null) {
+            bgmPlayer.stop();
+            bgmPlayer.play();
+        }
+
     }
 
     //Pause the game
@@ -498,6 +513,21 @@ public class GuiController implements Initializable {
 
     public GridPane getGamePanel() {
         return gamePanel;
+    }
+
+
+    //Background Music
+    private void initializeBackgroundMusic() {
+        try {
+            Media sound = new Media(getClass().getResource("/bgm.mp3").toExternalForm());
+            bgmPlayer = new MediaPlayer(sound);
+            bgmPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+            bgmPlayer.setVolume(0.5);
+            bgmPlayer.play();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error loading background music: " + e.getMessage());
+        }
     }
 
 }
