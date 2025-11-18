@@ -4,13 +4,14 @@ import javafx.fxml.FXML;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class MainMenu {
 
     @FXML private StackPane root;
     @FXML private ImageView logoImage;
-    @FXML private ImageView startButton, quitButton, optionsButton;
+    @FXML private VBox buttonContainer; // This links to the FXML VBox
 
     private Stage primaryStage;
     private GuiController guiController;
@@ -19,65 +20,39 @@ public class MainMenu {
         this.primaryStage = stage;
     }
 
+    public void setGuiController(GuiController guiController) {
+        this.guiController = guiController;
+    }
+
     @FXML
     private void initialize() {
-        // Load logo
-        setImage(logoImage, "/Tetris.png");
-
-        // Setup buttons
-        if (startButton != null) {
-            setupButton(startButton, "/Start_Button.png", "/Start_After.png", this::startGame);
-        }
-        if (optionsButton != null) {
-            setupButton(optionsButton, "/Options Button.png", "/Options_After_Button.png", this::optionsMenu);
-        }
-        if (quitButton != null) {
-            setupButton(quitButton, "/Quit Button.png", "/Quit_After.png", this::quitGame);
-        }
-    }
-
-    // Helper method to safely load images
-    private Image loadImage(String path) {
+        //Logo
         try {
-            if (getClass().getResource(path) == null) {
-                System.out.println("Resource not found: " + path);
-                return null;
-            }
-            return new Image(getClass().getResource(path).toExternalForm());
+            logoImage.setImage(new Image(getClass().getResource("/images/Tetris.png").toExternalForm()));
         } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    private void setImage(ImageView view, String path) {
-        if (view == null) return;
-        Image img = loadImage(path);
-        if (img != null) view.setImage(img);
-    }
-
-    private void setupButton(ImageView view, String normalPath, String hoverPath, Runnable action) {
-        if (view == null) {
-            System.out.println("ERROR: Cannot setup button - view is null");
-            return;
+            System.out.println("Logo not found");
         }
 
-        Image normalImg = loadImage(normalPath);
-        Image hoverImg = loadImage(hoverPath);
-        if (normalImg == null || hoverImg == null) return;
+        //Buttons
+        ButtonSFX startBtn = createButton("/images/Start_Button.png", "/images/Start_After.png", this::startGame);
+        ButtonSFX optionsBtn = createButton("/images/Options Button.png", "/images/Options_After_Button.png", this::optionsMenu);
+        ButtonSFX quitBtn = createButton("/images/Quit Button.png", "/images/Quit_After.png", this::quitGame);
 
-        view.setImage(normalImg);
-        view.setStyle("-fx-cursor: hand;");
+        buttonContainer.getChildren().addAll(startBtn, optionsBtn, quitBtn);
+    }
 
-        view.setOnMouseEntered(e -> view.setImage(hoverImg));
-        view.setOnMouseExited(e -> view.setImage(normalImg));
-        view.setOnMousePressed(e -> view.setImage(hoverImg));
-        view.setOnMouseReleased(e -> view.setImage(normalImg));
-        view.setOnMouseClicked(e -> action.run());
+    private ButtonSFX createButton(String path, String hoverPath, Runnable action) {
+        ButtonSFX btn = new ButtonSFX(path, hoverPath);
+
+        //Fixed Size
+        btn.setFitWidth(276);
+        btn.setFitHeight(57);
+
+        btn.setOnMouseClicked(e -> action.run());
+        return btn;
     }
 
     private void startGame() {
-        // Call the static method in Main to start the game
         Main.startGame();
     }
 

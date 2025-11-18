@@ -3,7 +3,6 @@ package com.comp2042;
 import javafx.fxml.FXML;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.stage.Stage;
 
 public class OptionsMenu {
 
@@ -26,7 +25,7 @@ public class OptionsMenu {
     @FXML
     private void initialize() {
         // Logo
-        setImage(logoImage, "/Tetris.png");
+        setImage(logoImage, "/images/Tetris.png");
 
         // Music toggle button
         setupButton(
@@ -69,11 +68,6 @@ public class OptionsMenu {
         );
     }
 
-
-    // ========================
-    // BUTTON ACTIONS
-    // ========================
-
     private void toggleMusic() {
         musicOn = !musicOn;
         System.out.println("Music toggled: " + (musicOn ? "ON" : "OFF"));
@@ -111,12 +105,6 @@ public class OptionsMenu {
             guiController.showPauseMenu();
         }
     }
-
-
-
-    // ========================
-    // IMAGE HELPERS
-    // ========================
 
     private Image loadImage(String path) {
         try {

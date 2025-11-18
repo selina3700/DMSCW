@@ -1,18 +1,24 @@
 .root {
-    -fx-background-image: url("background_image.png");
+    -fx-background-image: url("Background.png");
+        -fx-background-size: cover;
+        -fx-background-repeat: no-repeat;
+        -fx-background-position: center;
+        -fx-background-color: #191B43;
 }
 
 .gameBoard {
-    -fx-border-color: #61a2b1;
-    -fx-border-width: 8px;
+    -fx-border-color: #FFFFFF;
+    -fx-background-color: #191B43;
+    -fx-border-width: 5px;
     -fx-padding: 0;
 }
 
 .nextBrickLabel {
-    -fx-font-family: "Let's go Digital";
+    -fx-font-family: "Pixelify Sans", sans-serif;
+    -fx-font-style: normal;
     -fx-padding: 20px 0 0 0;
-    -fx-font-size: 16px;
-    -fx-text-fill: yellow;
+    -fx-font-size: 23px;
+    -fx-text-fill: white;
 }
 
 .rectangleStyle {
@@ -42,28 +48,23 @@
 }
 
 .bindScoreStyle {
-    -fx-font-family: "Let's go Digital";
-    -fx-font-size: 20;
-    -fx-fill: yellow;
-    -fx-text-fill: yellow;
+    -fx-font-family: "Pixelify Sans", sans-serif;
+    -fx-font-style: normal;
+    -fx-font-size: 23px;
+    -fx-text-fill: white;
 }
 
 .scoreClass{
-    -fx-font-family: "Let's go Digital";
-    -fx-font-size: 20;
-    -fx-fill: yellow;
-    -fx-text-fill: yellow;
-}
-
-.nextBrickLabel {
-    -fx-font-family: "Let's go Digital";
-    -fx-font-size: 20px;
-    -fx-text-fill: yellow;
+    -fx-font-family: "Pixelify Sans", sans-serif;
+    -fx-font-style: normal;
+    -fx-font-size: 23px;
+    -fx-text-fill: white;
 }
 
 .nextBrick {
-    -fx-border-width: 10px;
-    -fx-border-color: #61a2b1;
+    -fx-border-width: 5px;
+    -fx-border-color: #FFFFFF;
+    -fx-background-color: #191B43;
     -fx-alignment: center;
 }
 

@@ -4,12 +4,17 @@ import javafx.fxml.FXML;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox; // Import HBox
 
 public class PauseMenu {
 
     @FXML private StackPane root;
     @FXML private ImageView logoImage;
-    @FXML private ImageView resumeButton, restartButton, quitButton, mainMenuButton, optionsButton;
+
+    // Two separate containers from FXML
+    @FXML private VBox wideButtonContainer;
+    @FXML private HBox iconButtonContainer;
 
     private GuiController guiController;
 
@@ -19,49 +24,33 @@ public class PauseMenu {
 
     @FXML
     private void initialize() {
-        // Load logo
-        setImage(logoImage, "/Tetris.png");
 
-        // Setup buttons
-        setupButton(resumeButton, "/Resume_Button.png", "/Resume_After.png", this::resumeGame);
-        setupButton(restartButton, "/Restart_Button.png", "/Restart_After.png", this::restartGame);
-        setupButton(quitButton, "/Quit Button.png", "/Quit_After.png", this::quitGame);
-        setupButton(mainMenuButton, "/Main_Menu_Button.png", "/Main_Menu_After.png", this::mainMenu);
-        setupButton(optionsButton, "/Options Button.png", "/Options_After_Button.png", this::optionsMenu);
-    }
-
-    // Helper method to safely load images
-    private Image loadImage(String path) {
         try {
-            if (getClass().getResource(path) == null) {
-                System.out.println("Resource not found: " + path);
-                return null;
-            }
-            return new Image(getClass().getResource(path).toExternalForm());
+            logoImage.setImage(new Image(getClass().getResource("/images/Tetris.png").toExternalForm()));
         } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            System.out.println("Logo not found");
         }
+
+        ButtonSFX optionsBtn = createButton("/images/Options Button.png", "/images/Options_After_Button.png", 276, 57, this::optionsMenu);
+        ButtonSFX quitBtn = createButton("/images/Quit Button.png", "/images/Quit_After.png", 276, 57, this::quitGame);
+
+        wideButtonContainer.getChildren().addAll(optionsBtn, quitBtn);
+
+        ButtonSFX homeBtn = createButton("/images/Main_Menu_Button.png", "/images/Main_Menu_After.png", 65, 65, this::mainMenu);
+        ButtonSFX restartBtn = createButton("/images/Restart_Button.png", "/images/Restart_After.png", 65, 65, this::restartGame);
+        ButtonSFX resumeBtn = createButton("/images/Resume_Button.png", "/images/Resume_After.png", 65, 65, this::resumeGame);
+
+        iconButtonContainer.getChildren().addAll(homeBtn, restartBtn, resumeBtn);
     }
 
-    private void setImage(ImageView view, String path) {
-        Image img = loadImage(path);
-        if (img != null) view.setImage(img);
-    }
+    private ButtonSFX createButton(String path, String hoverPath, double width, double height, Runnable action) {
+        ButtonSFX btn = new ButtonSFX(path, hoverPath);
 
-    private void setupButton(ImageView view, String normalPath, String hoverPath, Runnable action) {
-        Image normalImg = loadImage(normalPath);
-        Image hoverImg = loadImage(hoverPath);
-        if (normalImg == null || hoverImg == null) return;
+        btn.setFitWidth(width);
+        btn.setFitHeight(height);
 
-        view.setImage(normalImg);
-        view.setStyle("-fx-cursor: hand;");
-
-        view.setOnMouseEntered(e -> view.setImage(hoverImg));
-        view.setOnMouseExited(e -> view.setImage(normalImg));
-        view.setOnMousePressed(e -> view.setImage(hoverImg));
-        view.setOnMouseReleased(e -> view.setImage(normalImg));
-        view.setOnMouseClicked(e -> action.run());
+        btn.setOnMouseClicked(e -> action.run());
+        return btn;
     }
 
     private void resumeGame() {
@@ -91,7 +80,7 @@ public class PauseMenu {
         }
     }
 
-    private void optionsMenu(){ //Temporary
+    private void optionsMenu(){
         if (guiController != null && guiController.getGamePanel() != null) {
             guiController.getGamePanel().getScene().getWindow().hide();
         }

@@ -2,7 +2,6 @@ package com.comp2042;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -15,12 +14,9 @@ import javafx.scene.Group;
 import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
 import javafx.scene.effect.Reflection;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.geometry.Bounds;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -34,15 +30,13 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-
-
 import java.net.URL;
 import java.util.ResourceBundle;
 
 public class GuiController implements Initializable {
 
     //Tetris block size (20 px)
-    private static final int BRICK_SIZE = 20;
+    private static final int BRICK_SIZE = 22;
 
     @FXML private GridPane gamePanel;
     @FXML private Group groupNotification;
@@ -82,8 +76,7 @@ public class GuiController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        //Load and enable digital-style font for the score
-        Font.loadFont(getClass().getResourceAsStream("/digital.ttf"), 38);
+        Font.loadFont(getClass().getResourceAsStream("/PixelifySans.ttf"), 38);
 
         //Receive keyboard input & ensure grids have no gaps
         gamePanel.setPadding(Insets.EMPTY);
@@ -390,32 +383,22 @@ public class GuiController implements Initializable {
             timeLine.pause();
             isPause.set(true);
             showPauseMenu();
+            if (bgmPlayer != null) bgmPlayer.pause();
         }
 
         gamePanel.requestFocus();
     }
 
     private void setupPauseButton() {
-        Image pauseImg = new Image(getClass().getResource("/Pause_Button.png").toExternalForm());
-        Image pauseAfterImg = new Image(getClass().getResource("/Pause_After.png").toExternalForm());
-        ImageView pauseView = new ImageView(pauseImg);
-        pauseView.setFitWidth(40);
-        pauseView.setFitHeight(40);
+        ButtonSFX pauseView = new ButtonSFX("/images/Pause_Button.png", "/images/Pause_After.png");
+        pauseView.setFitWidth(55);
+        pauseView.setFitHeight(55);
 
-        pauseView.setLayoutX(10);
+        pauseView.setLayoutX(5);
         pauseView.setLayoutY(10);
-
-        //Clicked
-        pauseView.setOnMousePressed(event -> pauseView.setImage(pauseAfterImg));
-        pauseView.setOnMouseExited(event -> pauseView.setImage(pauseImg));
-        //Hover
-        pauseView.setOnMouseEntered(event -> pauseView.setImage(pauseAfterImg));
-        pauseView.setOnMouseReleased(event -> pauseView.setImage(pauseImg));
-
-        //Clickable Image
         pauseView.setOnMouseClicked(event -> pauseGame(null));
-        //Cursor
-        pauseView.setStyle("-fx-cursor: hand;");
+
+        //Display
         buttonGroup.getChildren().add(pauseView);
     }
 
@@ -434,7 +417,6 @@ public class GuiController implements Initializable {
     private Color getDarker(Color color) {
         return color.deriveColor(0, 1, 0.55, 1);
     }
-
 
     private void generateNextBrickPreview(int[][] nextBrickData) {
         nextBrickPanel.getChildren().clear();
@@ -550,30 +532,6 @@ public class GuiController implements Initializable {
         }
     }
 
-
-    public void startGameFromMenu() {
-        try {
-            // Get the root pane
-            Pane root = (Pane) gamePanel.getScene().getRoot();
-
-            // Clear the main menu
-            root.getChildren().clear();
-
-            // Re-add the original game view (which should be the parent of gamePanel)
-            root.getChildren().add(gamePanel.getParent());
-
-            // Start a new game
-            newGame(null);
-
-            // Make sure game panel has focus
-            gamePanel.requestFocus();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Error starting game: " + e.getMessage());
-        }
-    }
-
     public void hidePauseMenu() {
         if (pauseMenu != null) {
             ((Pane) gamePanel.getScene().getRoot()).getChildren().remove(pauseMenu);
@@ -590,6 +548,7 @@ public class GuiController implements Initializable {
     public void resumeGame() {
         timeLine.play();
         isPause.set(false);
+        if (bgmPlayer != null) bgmPlayer.play();
     }
 
     public GridPane getGamePanel() {
@@ -600,7 +559,7 @@ public class GuiController implements Initializable {
     //Background Music
     private void initializeBackgroundMusic() {
         try {
-            Media sound = new Media(getClass().getResource("/bgm.mp3").toExternalForm());
+            Media sound = new Media(getClass().getResource("/sounds/bgm.mp3").toExternalForm());
             bgmPlayer = new MediaPlayer(sound);
             bgmPlayer.setCycleCount(MediaPlayer.INDEFINITE);
             bgmPlayer.setVolume(0.5);
