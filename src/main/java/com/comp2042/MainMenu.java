@@ -13,6 +13,7 @@ public class MainMenu {
     @FXML private ImageView startButton, quitButton, optionsButton;
 
     private Stage primaryStage;
+    private GuiController guiController;
 
     public void setPrimaryStage(Stage stage) {
         this.primaryStage = stage;
@@ -87,7 +88,9 @@ public class MainMenu {
     }
 
     private void optionsMenu() {
-        // Temporary - just close for now
-        System.out.println("Options menu not implemented yet");
+        if (guiController != null) {
+            guiController.hideMainMenu();
+            guiController.showOptionsMenu();
+        }
     }
 }

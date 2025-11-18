@@ -9,14 +9,17 @@
 <Pane fx:controller="com.comp2042.GuiController"
       xmlns:fx="http://javafx.com/fxml">
 
-    <Group layoutX="140" layoutY="10">
-        <!-- Falling brick panel -->
-        <GridPane fx:id="brickPanel" vgap="1" hgap="1"/>
-
+    <Pane layoutX="140" layoutY="10">
         <!-- Main game board -->
         <BorderPane styleClass="gameBoard" fx:id="gameBoard">
             <center>
-                <GridPane fx:id="gamePanel" hgap="1" vgap="1"/>
+                <StackPane alignment="TOP_LEFT">
+                    <GridPane fx:id="gamePanel"/>
+                    <GridPane fx:id="brickPanel"
+                              mouseTransparent="true"
+                              pickOnBounds="false"
+                              vgap="0" hgap="0"/>
+                </StackPane>
             </center>
         </BorderPane>
 
@@ -26,7 +29,7 @@
                 <GameOverPanel fx:id="gameOverPanel"/>
             </VBox>
         </Group>
-    </Group>
+    </Pane>
     <VBox fx:id="leftPanel">
         <!-- Score label -->
         <Label fx:id="scoreLabel" text="Score: 0"
@@ -58,4 +61,3 @@
         <URL value="@window_style.css"/>
     </stylesheets>
 </Pane>
-

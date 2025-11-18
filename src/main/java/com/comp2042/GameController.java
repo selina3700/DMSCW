@@ -35,7 +35,7 @@ public class GameController implements InputEventListener {
 
     //Increases the game speed everytime the level increases
     private void increaseGameSpeed() {
-        double newSpeed = Math.max(100, 400 - (level - 1) * 20);
+        double newSpeed = Math.max(100, 800 - (level - 1) * 20);
         viewGuiController.setGameSpeed(newSpeed);
     }
 

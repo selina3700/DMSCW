@@ -25,6 +25,6 @@
     </VBox>
 
     <stylesheets>
-        <URL value="@pauseMenu.css"/>
+        <URL value="@Menu.css"/>
     </stylesheets>
 </StackPane>

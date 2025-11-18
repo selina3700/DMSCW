@@ -2,6 +2,7 @@ package com.comp2042;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -10,29 +11,29 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
 import javafx.scene.effect.Reflection;
-import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.geometry.Bounds;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.geometry.Insets;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-import java.io.File;
 
 
 import java.net.URL;
@@ -55,6 +56,7 @@ public class GuiController implements Initializable {
     @FXML private Label nextBrickLabel;
     @FXML private GridPane nextBrickPanel;
     @FXML private StackPane pauseMenu;
+    @FXML private StackPane MainMenu;
     @FXML private Pane originalGameView;
 
 
@@ -63,8 +65,6 @@ public class GuiController implements Initializable {
     private InputEventListener eventListener;
 
     private Rectangle[][] rectangles;
-
-    private Rectangle[][] nextBrickRectangles;
 
     //Game Loop
     private Timeline timeLine;
@@ -75,15 +75,25 @@ public class GuiController implements Initializable {
 
     //BGM
     private MediaPlayer bgmPlayer;
+
+    //Outline
+    private Color getDarker;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
         //Load and enable digital-style font for the score
         Font.loadFont(getClass().getResourceAsStream("/digital.ttf"), 38);
 
-        //Receive keyboard input
+        //Receive keyboard input & ensure grids have no gaps
+        gamePanel.setPadding(Insets.EMPTY);
         gamePanel.setFocusTraversable(true);
         gamePanel.requestFocus();
+        brickPanel.setPadding(Insets.EMPTY);
+        brickPanel.setManaged(false);
+        brickPanel.setMouseTransparent(true);
+        brickPanel.setPickOnBounds(false);
+        brickPanel.setGridLinesVisible(false);
 
         //Key event handling
         gamePanel.setOnKeyPressed(new EventHandler<KeyEvent>() {
@@ -135,6 +145,16 @@ public class GuiController implements Initializable {
     }
 
     public void initGameView(int[][] boardMatrix, ViewData brick, double initialSpeed) {
+        for (int i = 2; i < boardMatrix.length; i++) {
+            for (int j = 0; j < boardMatrix[i].length; j++) {
+                Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
+                rectangle.setFill(Color.TRANSPARENT);
+                rectangle.setStrokeWidth(0.3);
+                rectangle.setStrokeType(StrokeType.INSIDE);
+                rectangle.setStroke(Color.WHITE);
+                gamePanel.add(rectangle, j, i - 2);
+            }
+        }
         //Background grid
         displayMatrix = new Rectangle[boardMatrix.length][boardMatrix[0].length];
         for (int i = 2; i < boardMatrix.length; i++) {
@@ -146,21 +166,38 @@ public class GuiController implements Initializable {
             }
         }
 
-        //Currently falling brick
+        //Currently falling brick (invisible grid until cells filled)
         rectangles = new Rectangle[brick.getBrickData().length][brick.getBrickData()[0].length];
         for (int i = 0; i < brick.getBrickData().length; i++) {
             for (int j = 0; j < brick.getBrickData()[i].length; j++) {
                 Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
-                rectangle.setFill(getFillColor(brick.getBrickData()[i][j]));
+                rectangle.setArcHeight(0);
+                rectangle.setArcWidth(0);
+                rectangle.setStrokeType(StrokeType.INSIDE);
+
+                int colorCode = brick.getBrickData()[i][j];
+
+                if (colorCode == 0) {
+                    // EMPTY PART OF FALLING BRICK: INVISIBLE
+                    rectangle.setFill(Color.TRANSPARENT);
+                    rectangle.setStroke(Color.TRANSPARENT); // <--- THIS REMOVES THE GRID BEHIND BRICK
+                } else {
+                    // ACTUAL BRICK BLOCK
+                    Color base = (Color) getFillColor(colorCode);
+                    rectangle.setFill(base);
+                    rectangle.setStroke(base.darker());
+                    rectangle.setStrokeWidth(1.0);
+                }
+
                 rectangles[i][j] = rectangle;
                 brickPanel.add(rectangle, j, i);
             }
         }
 
         //Position the brick at the correct location on the board
-        double gapSize = 1.0;
+
         brickPanel.setLayoutX(gamePanel.getLayoutX() + (brick.getxPosition() * (BRICK_SIZE)));
-        brickPanel.setLayoutY(gamePanel.getLayoutY() + ((brick.getyPosition() - 2) * (BRICK_SIZE)));
+        brickPanel.setLayoutY(gamePanel.getLayoutY() + ((brick.getyPosition()-1) * (BRICK_SIZE)));
 
         //Moves the brick down automatically with the specified speed
         timeLine = new Timeline(new KeyFrame(
@@ -181,28 +218,28 @@ public class GuiController implements Initializable {
                 returnPaint = Color.TRANSPARENT;
                 break;
             case 1:
-                returnPaint = Color.AQUA;
+                returnPaint = Color.web("#D24447");
                 break;
             case 2:
-                returnPaint = Color.BLUEVIOLET;
+                returnPaint = Color.web("#EB8C4D");
                 break;
             case 3:
-                returnPaint = Color.DARKGREEN;
+                returnPaint = Color.web("#D174FF");
                 break;
             case 4:
-                returnPaint = Color.YELLOW;
+                returnPaint = Color.web("#5AC8FB");
                 break;
             case 5:
-                returnPaint = Color.RED;
+                returnPaint = Color.web("#FFEE57");
                 break;
             case 6:
-                returnPaint = Color.BEIGE;
+                returnPaint = Color.web("#74FF64");
                 break;
             case 7:
-                returnPaint = Color.BURLYWOOD;
+                returnPaint = Color.web("#FA74FF");
                 break;
             default:
-                returnPaint = Color.WHITE;
+                returnPaint = Color.web("#FFFFFF");
                 break;
         }
         return returnPaint;
@@ -211,14 +248,8 @@ public class GuiController implements Initializable {
     //Update the visual position and appearance of the falling brick
     private void refreshBrick(ViewData brick) {
         if (isPause.getValue() == Boolean.FALSE) {
-            brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * brickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
-            brickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getyPosition() * brickPanel.getHgap() + brick.getyPosition() * BRICK_SIZE);
-
-            if (brick.getyPosition() < 1) {
-                brickPanel.setVisible(false);
-            } else {
-                brickPanel.setVisible(true);
-            }
+            brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * BRICK_SIZE);
+            brickPanel.setLayoutY(gamePanel.getLayoutY() + (brick.getyPosition()-2) * BRICK_SIZE);
 
             for (int i = 0; i < brick.getBrickData().length; i++) {
                 for (int j = 0; j < brick.getBrickData()[i].length; j++) {
@@ -244,9 +275,11 @@ public class GuiController implements Initializable {
 
     //Apply color and rounded corners to the rectangles
     private void setRectangleData(int color, Rectangle rectangle) {
-        rectangle.setFill(getFillColor(color));
-        rectangle.setArcHeight(9);
-        rectangle.setArcWidth(9);
+    Color base = (Color) getFillColor(color);
+        rectangle.setFill(base);
+        rectangle.setStroke(getDarker(base));
+        rectangle.setStrokeWidth(1.2);
+        rectangle.setStrokeType(StrokeType.INSIDE);
     }
 
     //Handles the action when a brick moves down
@@ -397,6 +430,12 @@ public class GuiController implements Initializable {
         }
     }
 
+    //Brick Outline
+    private Color getDarker(Color color) {
+        return color.deriveColor(0, 1, 0.55, 1);
+    }
+
+
     private void generateNextBrickPreview(int[][] nextBrickData) {
         nextBrickPanel.getChildren().clear();
         nextBrickPanel.getColumnConstraints().clear();
@@ -416,9 +455,17 @@ public class GuiController implements Initializable {
             for (int j = 0; j < brickCols; j++) {
                 if (nextBrickData[i][j] != 0) {
                     Rectangle rect = new Rectangle(BRICK_SIZE, BRICK_SIZE);
-                    rect.setArcWidth(9);
-                    rect.setArcHeight(9);
-                    rect.setFill(getFillColor(nextBrickData[i][j]));
+                    rect.setArcWidth(0);
+                    rect.setArcHeight(0);
+
+                    // Fill color
+                    Color base = (Color) getFillColor(nextBrickData[i][j]);
+                    rect.setFill(base);
+
+                    // Outline color (darker)
+                    rect.setStroke(getDarker(base));
+                    rect.setStrokeWidth(1.0);
+                    rect.setStrokeType(StrokeType.INSIDE);
 
                     // Add with offset so it's centered
                     nextBrickPanel.add(rect, j + colOffset, i + rowOffset);
@@ -476,6 +523,34 @@ public class GuiController implements Initializable {
         }
     }
 
+    public void showOptionsMenu() {
+        try {
+            // Stop the game
+            if (timeLine != null) {
+                timeLine.stop();
+            }
+
+            // Hide pause menu if it's showing
+            hidePauseMenu();
+
+            // Load the main menu FXML
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/optionsMenu.fxml"));
+            StackPane mainMenuPane = loader.load();
+
+            // Set the controller
+            MainMenu mainMenuController = loader.getController();
+            mainMenuController.setPrimaryStage((Stage) gamePanel.getScene().getWindow());
+
+            // Replace the scene root with main menu
+            gamePanel.getScene().setRoot(mainMenuPane);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error loading main menu: " + e.getMessage());
+        }
+    }
+
+
     public void startGameFromMenu() {
         try {
             // Get the root pane
@@ -505,6 +580,12 @@ public class GuiController implements Initializable {
             pauseMenu = null;
         }
     }
+    public void hideMainMenu() {
+        if (MainMenu != null) {
+            ((Pane) gamePanel.getScene().getRoot()).getChildren().remove(MainMenu);
+            MainMenu = null;
+        }
+    }
 
     public void resumeGame() {
         timeLine.play();
@@ -529,5 +610,4 @@ public class GuiController implements Initializable {
             System.out.println("Error loading background music: " + e.getMessage());
         }
     }
-
 }

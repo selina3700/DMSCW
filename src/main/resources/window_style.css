@@ -4,7 +4,7 @@
 
 .gameBoard {
     -fx-border-color: #61a2b1;
-    -fx-border-width: 12px;
+    -fx-border-width: 8px;
     -fx-padding: 0;
 }
 
@@ -70,4 +70,3 @@
 #leftPanel{
     -fx-padding: 10 10 30 10;
 }
-
