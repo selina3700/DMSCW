@@ -32,6 +32,7 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.scene.media.AudioClip;
 
 public class GuiController implements Initializable {
 
@@ -70,6 +71,9 @@ public class GuiController implements Initializable {
     //BGM
     private MediaPlayer bgmPlayer;
 
+    //SFX
+    private AudioClip clearSoundPlayer;
+
     //Outline
     private Color getDarker;
 
@@ -87,6 +91,15 @@ public class GuiController implements Initializable {
         brickPanel.setMouseTransparent(true);
         brickPanel.setPickOnBounds(false);
         brickPanel.setGridLinesVisible(false);
+
+        //Clear row sfx
+        try {
+            String soundPath = getClass().getResource("/sounds/linecleared.mp3").toExternalForm();
+            clearSoundPlayer = new AudioClip(soundPath);
+            clearSoundPlayer.setVolume(0.3);
+        } catch (Exception e) {
+            System.out.println("Clear sound not found: " + e.getMessage());
+        }
 
         //Key event handling
         gamePanel.setOnKeyPressed(new EventHandler<KeyEvent>() {
@@ -173,7 +186,7 @@ public class GuiController implements Initializable {
                 if (colorCode == 0) {
                     // EMPTY PART OF FALLING BRICK: INVISIBLE
                     rectangle.setFill(Color.TRANSPARENT);
-                    rectangle.setStroke(Color.TRANSPARENT); // <--- THIS REMOVES THE GRID BEHIND BRICK
+                    rectangle.setStroke(Color.TRANSPARENT);
                 } else {
                     // ACTUAL BRICK BLOCK
                     Color base = (Color) getFillColor(colorCode);
@@ -282,6 +295,9 @@ public class GuiController implements Initializable {
 
             //If row was cleared, show floating score
             if (downData.getClearRow() != null && downData.getClearRow().getLinesRemoved() > 0) {
+                if (clearSoundPlayer != null) {
+                    clearSoundPlayer.play();
+                }
                 NotificationPanel notificationPanel = new NotificationPanel("+" + downData.getClearRow().getScoreBonus());
                 groupNotification.getChildren().add(notificationPanel);
                 notificationPanel.showScore(groupNotification.getChildren());
@@ -346,6 +362,9 @@ public class GuiController implements Initializable {
 
                 // Handle row clearing animation if needed
                 if (downData.getClearRow() != null && downData.getClearRow().getLinesRemoved() > 0) {
+                    if (clearSoundPlayer != null) {
+                        clearSoundPlayer.play();
+                    }
                     NotificationPanel notificationPanel = new NotificationPanel("+" + downData.getClearRow().getScoreBonus());
                     groupNotification.getChildren().add(notificationPanel);
                     notificationPanel.showScore(groupNotification.getChildren());
