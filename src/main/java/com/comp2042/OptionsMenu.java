@@ -30,59 +30,67 @@ public class OptionsMenu {
         // Music toggle button
         setupButton(
                 musicButton,
-                "/Music_Button.png",
-                "/Music_Button_Hover.png",
+                "/images/Volume_Button.png",
+                "/images/Mute_Button.png",
                 this::toggleMusic
         );
 
         // SFX toggle button
         setupButton(
                 sfxButton,
-                "/SFX_Button.png",
-                "/SFX_Button_Hover.png",
+                "/images/SFX_Button.png",
+                "/images/SFX_Mute.png",
                 this::toggleSFX
         );
 
         // Controls
         setupButton(
                 controlsButton,
-                "/Controls_Button.png",
-                "/Controls_Button_Hover.png",
+                "/images/Controls_Button.png",
+                "/images/Controls_After.png",
                 this::goToControls
         );
 
         // Main Menu
         setupButton(
                 mainMenuButton,
-                "/MainMenu_Button.png",
-                "/MainMenu_Button_Hover.png",
+                "/images/Main_Menu_Button.png",
+                "/images/Main_Menu_After.png",
                 this::goToMainMenu
         );
 
         // Back
         setupButton(
                 backButton,
-                "/Back_Button.png",
-                "/Back_Button_Hover.png",
+                "/images/Back_Button.png",
+                "/images/Back_Button_Hover.png",
                 this::goBack
         );
     }
 
     private void toggleMusic() {
         musicOn = !musicOn;
-        System.out.println("Music toggled: " + (musicOn ? "ON" : "OFF"));
+
+        // UPDATE THE ACTUAL AUDIO
+        if (guiController != null) {
+            guiController.setMusicMute(!musicOn); // If musicOn is true, mute is false
+        }
 
         musicButton.setImage(loadImage(
-                musicOn ? "/Music_Button.png" : "/Music_Off_Button.png"
+                musicOn ? "/images/Volume_Button.png" : "/images/Mute_Button.png"
         ));
     }
 
     private void toggleSFX() {
         sfxOn = !sfxOn;
-        System.out.println("SFX toggled: " + (sfxOn ? "ON" : "OFF"));
+
+        // UPDATE THE ACTUAL AUDIO
+        if (guiController != null) {
+            guiController.setSFXMute(!sfxOn);
+        }
 
         sfxButton.setImage(loadImage(
-                sfxOn ? "/SFX_Button.png" : "/SFX_Off_Button.png"
+                sfxOn ? "/images/SFX_Button.png" : "/images/SFX_Off_Button.png"
         ));
     }
 

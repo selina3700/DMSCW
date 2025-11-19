@@ -13,7 +13,7 @@
     -fx-padding: 0;
 }
 
-.nextBrickLabel {
+.nextBrickLabel, .holdBrickLabel{
     -fx-font-family: "Pixelify Sans", sans-serif;
     -fx-font-style: normal;
     -fx-padding: 20px 0 0 0;
@@ -61,7 +61,7 @@
     -fx-text-fill: white;
 }
 
-.nextBrick {
+.nextBrick, .holdBrick{
     -fx-border-width: 5px;
     -fx-border-color: #FFFFFF;
     -fx-background-color: #191B43;

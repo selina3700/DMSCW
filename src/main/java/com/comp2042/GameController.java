@@ -118,4 +118,10 @@ public class GameController implements InputEventListener {
 
         viewGuiController.setGameSpeed(400);
     }
+
+    @Override
+    public void onHoldEvent() {
+        board.holdBrick();
+        viewGuiController.refreshBrick(board.getViewData());
+    }
 }

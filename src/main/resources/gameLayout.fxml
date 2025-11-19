@@ -30,7 +30,7 @@
             </VBox>
         </Group>
     </Pane>
-    <VBox fx:id="leftPanel">
+    <VBox fx:id="leftPanel" layoutX="5" layoutY="10">
         <!-- Score label -->
         <Label fx:id="scoreLabel" text="Score: 0"
                styleClass="bindScoreStyle"
@@ -48,13 +48,39 @@
         />
 
         <!-- Next Brick -->
-        <VBox fx:id="nextBrickContainer" spacing="10">
+        <VBox fx:id="nextBrickContainer" spacing="10" alignment="CENTER">
+
             <Label fx:id="nextBrickLabel" text="Next:" styleClass="nextBrickLabel"/>
-            <GridPane fx:id="nextBrickPanel" styleClass="nextBrick" prefWidth="120" prefHeight="120"/>
+            <GridPane fx:id="nextBrickPanel" styleClass="nextBrick"
+                      prefWidth="100" prefHeight="100"
+                      minWidth="100" maxWidth="100"
+                      minHeight="100" maxHeight="100"
+                      alignment="CENTER" hgap="0" vgap="0">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="25"/><ColumnConstraints percentWidth="25"/><ColumnConstraints percentWidth="25"/><ColumnConstraints percentWidth="25"/>
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints percentHeight="25"/><RowConstraints percentHeight="25"/><RowConstraints percentHeight="25"/><RowConstraints percentHeight="25"/>
+                </rowConstraints>
+            </GridPane>
+
+            <Label fx:id="holdBrickLabel" text="Hold:" styleClass="holdBrickLabel"/>
+            <GridPane fx:id="holdBrickPanel" styleClass="holdBrick"
+                      prefWidth="100" prefHeight="100"
+                      minWidth="100" maxWidth="100"
+                      minHeight="100" maxHeight="100"
+                      alignment="CENTER" hgap="0" vgap="0">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="25"/><ColumnConstraints percentWidth="25"/><ColumnConstraints percentWidth="25"/><ColumnConstraints percentWidth="25"/>
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints percentHeight="25"/><RowConstraints percentHeight="25"/><RowConstraints percentHeight="25"/><RowConstraints percentHeight="25"/>
+                </rowConstraints>
+            </GridPane>
+
         </VBox>
     </VBox>
 
-    <!-- Pause Button -->
     <Pane fx:id="buttonGroup" layoutX="380" layoutY="10" prefWidth="200" prefHeight="100"/>
 
     <stylesheets>

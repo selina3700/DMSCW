@@ -33,6 +33,8 @@ import javafx.scene.media.MediaPlayer;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.scene.media.AudioClip;
+import javafx.geometry.HPos;
+import javafx.geometry.VPos;
 
 public class GuiController implements Initializable {
 
@@ -53,6 +55,7 @@ public class GuiController implements Initializable {
     @FXML private StackPane pauseMenu;
     @FXML private StackPane MainMenu;
     @FXML private Pane originalGameView;
+    @FXML private GridPane holdBrickPanel;
 
 
     //Visual layout of board and bricks
@@ -125,6 +128,12 @@ public class GuiController implements Initializable {
                     }
                     if (keyEvent.getCode() == KeyCode.SPACE) {
                         hardDrop();
+                        keyEvent.consume();
+                    }
+                    if (keyEvent.getCode() == KeyCode.H) {
+                        if (eventListener != null) {
+                            eventListener.onHoldEvent();
+                        }
                         keyEvent.consume();
                     }
                 }
@@ -252,7 +261,7 @@ public class GuiController implements Initializable {
     }
 
     //Update the visual position and appearance of the falling brick
-    private void refreshBrick(ViewData brick) {
+    public void refreshBrick(ViewData brick) {
         if (isPause.getValue() == Boolean.FALSE) {
             brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * BRICK_SIZE);
             brickPanel.setLayoutY(gamePanel.getLayoutY() + (brick.getyPosition()-2) * BRICK_SIZE);
@@ -265,6 +274,10 @@ public class GuiController implements Initializable {
 
             if (brick.getNextBrickData() != null) {
                 generateNextBrickPreview(brick.getNextBrickData());
+            }
+
+            if (brick.getHeldBrickData() != null) {
+                generateHoldBrickPreview(brick.getHeldBrickData());
             }
 
         }
@@ -439,41 +452,65 @@ public class GuiController implements Initializable {
 
     private void generateNextBrickPreview(int[][] nextBrickData) {
         nextBrickPanel.getChildren().clear();
-        nextBrickPanel.getColumnConstraints().clear();
-        nextBrickPanel.getRowConstraints().clear();
 
         int brickRows = nextBrickData.length;
         int brickCols = nextBrickData[0].length;
 
-        int previewRows = (int) (nextBrickPanel.getPrefHeight() / BRICK_SIZE);
-        int previewCols = (int) (nextBrickPanel.getPrefWidth() / BRICK_SIZE);
-
-        // Offsets to center the brick
-        int rowOffset = (previewRows - brickRows) / 2;
-        int colOffset = (previewCols - brickCols) / 2;
+        // Calculate offsets to center the shape within the 4x4 grid
+        int rowOffset = (4 - brickRows) / 2;
+        int colOffset = (4 - brickCols) / 2;
 
         for (int i = 0; i < brickRows; i++) {
             for (int j = 0; j < brickCols; j++) {
                 if (nextBrickData[i][j] != 0) {
                     Rectangle rect = new Rectangle(BRICK_SIZE, BRICK_SIZE);
-                    rect.setArcWidth(0);
-                    rect.setArcHeight(0);
-
-                    // Fill color
                     Color base = (Color) getFillColor(nextBrickData[i][j]);
                     rect.setFill(base);
-
-                    // Outline color (darker)
                     rect.setStroke(getDarker(base));
                     rect.setStrokeWidth(1.0);
                     rect.setStrokeType(StrokeType.INSIDE);
 
-                    // Add with offset so it's centered
+                    // --- FIX: Center the rectangle inside the grid cell ---
+                    GridPane.setHalignment(rect, HPos.CENTER);
+                    GridPane.setValignment(rect, VPos.CENTER);
+                    // ----------------------------------------------------
+
                     nextBrickPanel.add(rect, j + colOffset, i + rowOffset);
                 }
             }
         }
-        nextBrickPanel.setVisible(true);
+    }
+
+    private void generateHoldBrickPreview(int[][] heldBrickData) {
+        if (holdBrickPanel == null) return;
+
+        holdBrickPanel.getChildren().clear();
+
+        int brickRows = heldBrickData.length;
+        int brickCols = heldBrickData[0].length;
+
+        int rowOffset = (4 - brickRows) / 2;
+        int colOffset = (4 - brickCols) / 2;
+
+        for (int i = 0; i < brickRows; i++) {
+            for (int j = 0; j < brickCols; j++) {
+                if (heldBrickData[i][j] != 0) {
+                    Rectangle rect = new Rectangle(BRICK_SIZE, BRICK_SIZE);
+                    Color base = (Color) getFillColor(heldBrickData[i][j]);
+                    rect.setFill(base);
+                    rect.setStroke(getDarker(base));
+                    rect.setStrokeWidth(1.0);
+                    rect.setStrokeType(StrokeType.INSIDE);
+
+                    // --- FIX: Center the rectangle inside the grid cell ---
+                    GridPane.setHalignment(rect, HPos.CENTER);
+                    GridPane.setValignment(rect, VPos.CENTER);
+                    // ----------------------------------------------------
+
+                    holdBrickPanel.add(rect, j + colOffset, i + rowOffset);
+                }
+            }
+        }
     }
 
     public void showPauseMenu() {
@@ -515,6 +552,8 @@ public class GuiController implements Initializable {
             MainMenu mainMenuController = loader.getController();
             mainMenuController.setPrimaryStage((Stage) gamePanel.getScene().getWindow());
 
+            mainMenuController.setGuiController(this);
+
             // Replace the scene root with main menu
             gamePanel.getScene().setRoot(mainMenuPane);
 
@@ -526,28 +565,17 @@ public class GuiController implements Initializable {
 
     public void showOptionsMenu() {
         try {
-            // Stop the game
-            if (timeLine != null) {
-                timeLine.stop();
-            }
-
-            // Hide pause menu if it's showing
-            hidePauseMenu();
-
-            // Load the main menu FXML
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/optionsMenu.fxml"));
-            StackPane mainMenuPane = loader.load();
+            Pane optionsPane = loader.load();
 
-            // Set the controller
-            MainMenu mainMenuController = loader.getController();
-            mainMenuController.setPrimaryStage((Stage) gamePanel.getScene().getWindow());
+            OptionsMenu controller = loader.getController();
+            controller.setGuiController(this);
 
-            // Replace the scene root with main menu
-            gamePanel.getScene().setRoot(mainMenuPane);
+            gamePanel.getScene().setRoot(optionsPane);
 
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Error loading main menu: " + e.getMessage());
+            System.out.println("Error loading Options menu: " + e.getMessage());
         }
     }
 
@@ -588,4 +616,17 @@ public class GuiController implements Initializable {
             System.out.println("Error loading background music: " + e.getMessage());
         }
     }
+
+    public void setMusicMute(boolean mute) {
+        if (bgmPlayer != null) {
+            bgmPlayer.setMute(mute);
+        }
+    }
+
+    public void setSFXMute(boolean mute) {
+        if (clearSoundPlayer != null) {
+            clearSoundPlayer.setVolume(mute ? 0.0 : 0.3);
+        }
+    }
+
 }
