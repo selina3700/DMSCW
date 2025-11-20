@@ -35,6 +35,9 @@ import java.util.ResourceBundle;
 import javafx.scene.media.AudioClip;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
+import javafx.stage.Window;
+import javafx.scene.Scene;
+
 
 public class GuiController implements Initializable {
 
@@ -76,9 +79,15 @@ public class GuiController implements Initializable {
 
     //SFX
     private AudioClip clearSoundPlayer;
+    private ButtonSFX pauseButton;
 
     //Outline
     private Color getDarker;
+
+    private Pane currentOptionsMenu;
+
+    private boolean isMusicMuted = false;
+    private boolean isSFXMuted = false;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -294,7 +303,7 @@ public class GuiController implements Initializable {
 
     //Apply color and rounded corners to the rectangles
     private void setRectangleData(int color, Rectangle rectangle) {
-    Color base = (Color) getFillColor(color);
+        Color base = (Color) getFillColor(color);
         rectangle.setFill(base);
         rectangle.setStroke(getDarker(base));
         rectangle.setStrokeWidth(1.2);
@@ -422,16 +431,32 @@ public class GuiController implements Initializable {
     }
 
     private void setupPauseButton() {
-        ButtonSFX pauseView = new ButtonSFX("/images/Pause_Button.png", "/images/Pause_After.png");
-        pauseView.setFitWidth(55);
-        pauseView.setFitHeight(55);
+        pauseButton = new ButtonSFX("/images/Pause_Button.png", "/images/Pause_After.png");
+        pauseButton.setFitWidth(55);
+        pauseButton.setFitHeight(55);
 
-        pauseView.setLayoutX(5);
-        pauseView.setLayoutY(10);
-        pauseView.setOnMouseClicked(event -> pauseGame(null));
+        pauseButton.setLayoutX(5);
+        pauseButton.setLayoutY(10);
+        // Using setOnMouseClicked here is fine since it doesn't interrupt other handlers
+        pauseButton.setOnMouseClicked(event -> pauseGame(null));
+
+        // Set initial SFX mute state
+        pauseButton.setSFXMuted(isSFXMuted);
 
         //Display
-        buttonGroup.getChildren().add(pauseView);
+        buttonGroup.getChildren().add(pauseButton);
+    }
+
+    // Update the setSFXMute method to also update the pause button:
+    public void setSFXMute(boolean mute) {
+        this.isSFXMuted = mute;
+        if (clearSoundPlayer != null) {
+            clearSoundPlayer.setVolume(mute ? 0.0 : 0.3);
+        }
+        // Update pause button SFX state
+        if (pauseButton != null) {
+            pauseButton.setSFXMuted(mute);
+        }
     }
 
     public void setGameSpeed(double newSpeed) {
@@ -519,7 +544,7 @@ public class GuiController implements Initializable {
             pauseMenu = loader.load();
 
             PauseMenu controller = loader.getController();
-            controller.setGuiController(this);
+            controller.setGuiController(this); // Calls syncButtonStates inside PauseMenu
 
             Pane root = (Pane) gamePanel.getScene().getRoot();
 
@@ -552,7 +577,7 @@ public class GuiController implements Initializable {
             MainMenu mainMenuController = loader.getController();
             mainMenuController.setPrimaryStage((Stage) gamePanel.getScene().getWindow());
 
-            mainMenuController.setGuiController(this);
+            mainMenuController.setGuiController(this); // Calls syncButtonStates inside MainMenu
 
             // Replace the scene root with main menu
             gamePanel.getScene().setRoot(mainMenuPane);
@@ -565,17 +590,98 @@ public class GuiController implements Initializable {
 
     public void showOptionsMenu() {
         try {
+            System.out.println("showOptionsMenu called");
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/optionsMenu.fxml"));
             Pane optionsPane = loader.load();
 
-            OptionsMenu controller = loader.getController();
-            controller.setGuiController(this);
+            System.out.println("Options pane loaded");
 
-            gamePanel.getScene().setRoot(optionsPane);
+            OptionsMenu controller = loader.getController();
+            controller.setGuiController(this); // Calls syncButtonStates inside OptionsMenu
+
+            // Find the scene root to overlay the options pane onto.
+            javafx.scene.Parent rootParent = null;
+
+            // 1) Try gamePanel if it's attached
+            if (gamePanel != null && gamePanel.getScene() != null) {
+                rootParent = gamePanel.getScene().getRoot();
+                System.out.println("Got root from gamePanel");
+            }
+
+            // 2) If not found, use the focused window's scene root (more reliable than first showing window)
+            if (rootParent == null) {
+                System.out.println("gamePanel root not available, searching focused window...");
+                for (Window window : Window.getWindows()) {
+                    if (window.isShowing() && window.isFocused() && window instanceof Stage) {
+                        Stage stage = (Stage) window;
+                        if (stage.getScene() != null && stage.getScene().getRoot() != null) {
+                            rootParent = stage.getScene().getRoot();
+                            System.out.println("Got root from focused window");
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // 3) If still not found, fallback to first showing stage's root
+            if (rootParent == null) {
+                System.out.println("Searching any showing window...");
+                for (Window window : Window.getWindows()) {
+                    if (window.isShowing() && window instanceof Stage) {
+                        Stage stage = (Stage) window;
+                        if (stage.getScene() != null && stage.getScene().getRoot() != null) {
+                            rootParent = stage.getScene().getRoot();
+                            System.out.println("Got root from first showing window");
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (rootParent == null) {
+                System.err.println("ERROR: Could not find parent root for options menu");
+                return;
+            }
+
+            // If the existing root is already a Pane, overlay directly; else create a StackPane wrapper
+            Pane overlayParent;
+            if (rootParent instanceof Pane) {
+                overlayParent = (Pane) rootParent;
+            } else {
+                // Wrap existing root into a StackPane so we can overlay optionsPane without replacing scene root
+                System.out.println("Root is not a Pane; wrapping into StackPane overlay");
+                StackPane wrapper = new StackPane();
+                wrapper.getChildren().add(rootParent);
+                // replace scene root with wrapper
+                Stage stage = (Stage) rootParent.getScene().getWindow();
+                stage.getScene().setRoot(wrapper);
+                overlayParent = wrapper;
+            }
+
+            System.out.println("Setting up options pane...");
+            optionsPane.setPrefSize(overlayParent.getWidth(), overlayParent.getHeight());
+            optionsPane.prefWidthProperty().bind(overlayParent.widthProperty());
+            optionsPane.prefHeightProperty().bind(overlayParent.heightProperty());
+
+            overlayParent.getChildren().add(optionsPane);
+            currentOptionsMenu = optionsPane;
+
+            System.out.println("Options menu displayed successfully");
 
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Error loading Options menu: " + e.getMessage());
+        }
+    }
+
+
+    // Also update hideOptionsMenu():
+    public void hideOptionsMenu() {
+        if (currentOptionsMenu != null && currentOptionsMenu.getParent() instanceof Pane) {
+            ((Pane) currentOptionsMenu.getParent()).getChildren().remove(currentOptionsMenu);
+            currentOptionsMenu = null;
+            System.out.println("Options menu hidden");
         }
     }
 
@@ -617,16 +723,19 @@ public class GuiController implements Initializable {
         }
     }
 
+    public boolean isMusicMuted() {
+        return isMusicMuted;
+    }
+
+    public boolean isSFXMuted() {
+        return isSFXMuted;
+    }
+
+    // Update your existing setMusicMute method
     public void setMusicMute(boolean mute) {
+        this.isMusicMuted = mute;
         if (bgmPlayer != null) {
             bgmPlayer.setMute(mute);
         }
     }
-
-    public void setSFXMute(boolean mute) {
-        if (clearSoundPlayer != null) {
-            clearSoundPlayer.setVolume(mute ? 0.0 : 0.3);
-        }
-    }
-
 }

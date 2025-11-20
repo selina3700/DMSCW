@@ -12,7 +12,6 @@ public class PauseMenu {
     @FXML private StackPane root;
     @FXML private ImageView logoImage;
 
-    // Two separate containers from FXML
     @FXML private VBox wideButtonContainer;
     @FXML private HBox iconButtonContainer;
 
@@ -20,6 +19,8 @@ public class PauseMenu {
 
     public void setGuiController(GuiController controller) {
         this.guiController = controller;
+        // FIX: Sync button states immediately when controller is set
+        syncButtonStates();
     }
 
     @FXML
@@ -31,25 +32,49 @@ public class PauseMenu {
             System.out.println("Logo not found");
         }
 
-        ButtonSFX optionsBtn = createButton("/images/Options Button.png", "/images/Options_After_Button.png", 276, 57, this::optionsMenu);
-        ButtonSFX quitBtn = createButton("/images/Quit Button.png", "/images/Quit_After.png", 276, 57, this::quitGame);
+        ButtonSFX optionsBtn = createIconButton("/images/Options Button.png", "/images/Options_After_Button.png", 276, 57, this::optionsMenu);
+        ButtonSFX quitBtn = createIconButton("/images/Quit Button.png", "/images/Quit_After.png", 276, 57, this::quitGame);
 
         wideButtonContainer.getChildren().addAll(optionsBtn, quitBtn);
 
-        ButtonSFX homeBtn = createButton("/images/Main_Menu_Button.png", "/images/Main_Menu_After.png", 65, 65, this::mainMenu);
-        ButtonSFX restartBtn = createButton("/images/Restart_Button.png", "/images/Restart_After.png", 65, 65, this::restartGame);
-        ButtonSFX resumeBtn = createButton("/images/Resume_Button.png", "/images/Resume_After.png", 65, 65, this::resumeGame);
+        ButtonSFX homeBtn = createIconButton("/images/Main_Menu_Button.png", "/images/Main_Menu_After.png", 65, 65, this::mainMenu);
+        ButtonSFX restartBtn = createIconButton("/images/Restart_Button.png", "/images/Restart_After.png", 65, 65, this::restartGame);
+        ButtonSFX resumeBtn = createIconButton("/images/Resume_Button.png", "/images/Resume_After.png", 65, 65, this::resumeGame);
 
         iconButtonContainer.getChildren().addAll(homeBtn, restartBtn, resumeBtn);
     }
 
-    private ButtonSFX createButton(String path, String hoverPath, double width, double height, Runnable action) {
+    // NEW: Sync all button SFX mute states
+    private void syncButtonStates() {
+        if (guiController == null) return;
+        boolean isMuted = guiController.isSFXMuted();
+
+        if (wideButtonContainer != null) {
+            wideButtonContainer.getChildren().forEach(node -> {
+                if (node instanceof ButtonSFX) ((ButtonSFX) node).setSFXMuted(isMuted);
+            });
+        }
+        if (iconButtonContainer != null) {
+            iconButtonContainer.getChildren().forEach(node -> {
+                if (node instanceof ButtonSFX) ((ButtonSFX) node).setSFXMuted(isMuted);
+            });
+        }
+    }
+
+    private ButtonSFX createIconButton(String path, String hoverPath, double width, double height, Runnable action) {
         ButtonSFX btn = new ButtonSFX(path, hoverPath);
 
         btn.setFitWidth(width);
         btn.setFitHeight(height);
 
-        btn.setOnMouseClicked(e -> action.run());
+        // FIX: Use addEventHandler instead of setOnMouseClicked to preserve the SFX handler
+        btn.addEventHandler(javafx.scene.input.MouseEvent.MOUSE_CLICKED, e -> action.run());
+
+        // Sync SFX state
+        if (guiController != null) {
+            btn.setSFXMuted(guiController.isSFXMuted());
+        }
+
         return btn;
     }
 
@@ -82,7 +107,8 @@ public class PauseMenu {
 
     private void optionsMenu(){
         if (guiController != null && guiController.getGamePanel() != null) {
-            guiController.getGamePanel().getScene().getWindow().hide();
+            guiController.hidePauseMenu();
+            guiController.showOptionsMenu();
         }
     }
 }

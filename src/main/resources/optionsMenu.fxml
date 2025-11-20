@@ -2,22 +2,19 @@
 
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.image.ImageView?>
 <?import java.net.URL?>
 
 <StackPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.comp2042.OptionsMenu"
            maxWidth="Infinity" maxHeight="Infinity" styleClass="pause-root">
 
-    <VBox alignment="CENTER" spacing="15" styleClass="buttons-container"
-          prefHeight="550" prefWidth="450">
+    <VBox alignment="CENTER" spacing="10" styleClass="buttons-container"
+          prefHeight="498" prefWidth="402" maxHeight="498" maxWidth="402">
 
         <ImageView fx:id="logoImage" fitWidth="346" fitHeight="219" preserveRatio="true" />
-
-        <ImageView fx:id="musicButton" fitWidth="276" fitHeight="57" />
-        <ImageView fx:id="sfxButton" fitWidth="276" fitHeight="57" />
-        <ImageView fx:id="controlsButton" fitWidth="276" fitHeight="57" />
-        <ImageView fx:id="mainMenuButton" fitWidth="276" fitHeight="57" />
-        <ImageView fx:id="backButton" fitWidth="276" fitHeight="57" />
+        <HBox fx:id="iconButtonContainer" alignment="CENTER" spacing="20" style="-fx-padding: 10 0 0 0;" />
+        <VBox fx:id="wideButtonContainer" alignment="CENTER" spacing="10" />
 
     </VBox>
 

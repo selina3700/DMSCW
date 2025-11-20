@@ -6,12 +6,13 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.scene.input.MouseEvent; // <-- New Import
 
 public class MainMenu {
 
     @FXML private StackPane root;
     @FXML private ImageView logoImage;
-    @FXML private VBox buttonContainer; // This links to the FXML VBox
+    @FXML private VBox buttonContainer;
 
     private Stage primaryStage;
     private GuiController guiController;
@@ -22,6 +23,8 @@ public class MainMenu {
 
     public void setGuiController(GuiController guiController) {
         this.guiController = guiController;
+        // FIX: Sync button states immediately when controller is set
+        syncButtonStates();
     }
 
     @FXML
@@ -33,7 +36,11 @@ public class MainMenu {
             System.out.println("Logo not found");
         }
 
-        //Buttons
+        // Buttons
+        createButtons();
+    }
+
+    private void createButtons() {
         ButtonSFX startBtn = createButton("/images/Start_Button.png", "/images/Start_After.png", this::startGame);
         ButtonSFX optionsBtn = createButton("/images/Options Button.png", "/images/Options_After_Button.png", this::optionsMenu);
         ButtonSFX quitBtn = createButton("/images/Quit Button.png", "/images/Quit_After.png", this::quitGame);
@@ -41,14 +48,32 @@ public class MainMenu {
         buttonContainer.getChildren().addAll(startBtn, optionsBtn, quitBtn);
     }
 
+    private void syncButtonStates() {
+        if (guiController == null || buttonContainer == null) return;
+        boolean isMuted = guiController.isSFXMuted();
+
+        for (javafx.scene.Node node : buttonContainer.getChildren()) {
+            if (node instanceof ButtonSFX) {
+                ((ButtonSFX) node).setSFXMuted(isMuted);
+            }
+        }
+    }
+
     private ButtonSFX createButton(String path, String hoverPath, Runnable action) {
         ButtonSFX btn = new ButtonSFX(path, hoverPath);
 
-        //Fixed Size
+        // Fixed Size
         btn.setFitWidth(276);
         btn.setFitHeight(57);
 
-        btn.setOnMouseClicked(e -> action.run());
+        // FIX: Use addEventHandler to append the custom action.
+        btn.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> action.run());
+
+        // FIX: Manually set the SFX mute state right after creation if controller is available
+        if (guiController != null) {
+            btn.setSFXMuted(guiController.isSFXMuted());
+        }
+
         return btn;
     }
 

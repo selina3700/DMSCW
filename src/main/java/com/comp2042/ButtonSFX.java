@@ -6,33 +6,75 @@ import javafx.scene.media.AudioClip;
 
 public class ButtonSFX extends ImageView {
 
-    private static final String SOUND_PATH = "/buttonClick.mp3";
-    private static final AudioClip CLICK_SOUND = new AudioClip(ButtonSFX.class.getResource(SOUND_PATH).toExternalForm());
-
-    private final Image normalImg;
-    private final Image hoverImg;
+    private AudioClip clickSound;
+    private Image normalImg;
+    private Image hoverImg;
+    private boolean sfxMuted = false;
 
     public ButtonSFX(String imagePath, String hoverPath) {
-        // Load Images
-        this.normalImg = new Image(getClass().getResource(imagePath).toExternalForm());
-        this.hoverImg = new Image(getClass().getResource(hoverPath).toExternalForm());
+        try {
+            // Load Images
+            this.normalImg = new Image(getClass().getResource(imagePath).toExternalForm());
+            this.hoverImg = new Image(getClass().getResource(hoverPath).toExternalForm());
 
-        // Set Initial Look
-        setImage(normalImg);
+            // Setup Sound
+            String soundPath = getClass().getResource("/buttonClick.mp3").toExternalForm();
+            this.clickSound = new AudioClip(soundPath);
+
+        } catch (Exception e) {
+            System.err.println("Error loading resources for ButtonSFX: " + e.getMessage());
+            this.normalImg = null;
+            this.hoverImg = null;
+            this.clickSound = null;
+        }
+
+        if (normalImg != null) {
+            setImage(normalImg);
+        }
         setPreserveRatio(true);
         setStyle("-fx-cursor: hand;");
 
         setupInteractions();
     }
 
-    private void setupInteractions() {
-        setOnMouseEntered(event -> setImage(hoverImg));
-        setOnMouseExited(event -> setImage(normalImg));
-        setOnMousePressed(event -> setImage(hoverImg));
-        setOnMouseReleased(event -> setImage(normalImg));
+    public void setNormalImage(Image newImage) {
+        this.normalImg = newImage;
+        if (!isHover()) {
+            setImage(newImage);
+        }
+    }
 
-        addEventHandler(javafx.scene.input.MouseEvent.MOUSE_CLICKED, event -> {
-            CLICK_SOUND.play();
+    public Image getNormalImage() {
+        return this.normalImg;
+    }
+
+    public Image getHoverImage() {
+        return this.hoverImg;
+    }
+
+    public void setHoverImage(Image newImage) {
+        this.hoverImg = newImage;
+    }
+
+    public void setSFXMuted(boolean muted) {
+        this.sfxMuted = muted;
+        // Don't stop the sound here, just update the flag
+    }
+
+    private void setupInteractions() {
+        setOnMouseEntered(event -> {
+            if (hoverImg != null) setImage(hoverImg);
+        });
+        setOnMouseExited(event -> {
+            if (normalImg != null) setImage(normalImg);
+        });
+
+        // CRITICAL FIX: Use addEventFilter instead of addEventHandler
+        // This runs during the CAPTURE phase, before any other handlers
+        addEventFilter(javafx.scene.input.MouseEvent.MOUSE_CLICKED, event -> {
+            if (clickSound != null && !sfxMuted) {
+                clickSound.play();
+            }
         });
     }
 }

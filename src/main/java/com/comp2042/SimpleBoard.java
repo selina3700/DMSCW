@@ -139,7 +139,7 @@ public class SimpleBoard implements Board {
                 (int) currentOffset.getX(),
                 (int) currentOffset.getY(),
                 brickGenerator.getNextBrick().getShapeMatrix().get(0),
-                heldMatrix // <--- YOU NEED TO UPDATE ViewData CLASS TO ACCEPT THIS
+                heldMatrix
         );
     }
 
