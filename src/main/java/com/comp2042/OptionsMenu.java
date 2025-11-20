@@ -1,13 +1,15 @@
 package com.comp2042;
 
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.control.Control;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.media.AudioClip; // <-- New Import
+import javafx.scene.media.AudioClip;
+import javafx.scene.text.Font;
 
 public class OptionsMenu {
 
@@ -26,7 +28,7 @@ public class OptionsMenu {
     private Image sfxOnImg;
     private Image sfxOffImg;
 
-    private AudioClip buttonClickSound; // <-- New field for manual SFX playback
+    private AudioClip buttonClickSound;
 
     @FXML private ImageView logoImage;
     @FXML private VBox wideButtonContainer;
@@ -42,30 +44,56 @@ public class OptionsMenu {
         try {
             logoImage.setImage(new Image(getClass().getResource("/images/Tetris_2.png").toExternalForm()));
 
-            // Attempt to load the button click sound manually
             try {
                 String soundPath = getClass().getResource("/buttonClick.mp3").toExternalForm();
                 this.buttonClickSound = new AudioClip(soundPath);
             } catch (Exception soundE) {
-                System.out.println("Button click sound not found for manual use: " + soundE.getMessage());
+                System.out.println("Button click sound not found: " + soundE.getMessage());
             }
 
         } catch (Exception e) {
             System.out.println("Logo not found: " + e.getMessage());
         }
 
-        // Load all images upfront
         volumeOnImg = loadImage("/images/Volume_Button.png");
         volumeOffImg = loadImage("/images/Mute_Button.png");
         sfxOnImg = loadImage("/images/SFX_Button.png");
         sfxOffImg = loadImage("/images/SFX_Mute.png");
 
-        // Create icon buttons (music and SFX)
         musicButtonRef = createIconButton("/images/Volume_Button.png", "/images/Mute_Button.png", 65, 65, this::toggleMusic);
         sfxButtonRef = createIconButton("/images/SFX_Button.png", "/images/SFX_Mute.png", 65, 65, this::toggleSFX);
-        iconButtonContainer.getChildren().addAll(musicButtonRef, sfxButtonRef);
 
-        // Create wide buttons
+        // ---------------------------------------------------------
+        // UPDATED: Using CSS for styling
+        // ---------------------------------------------------------
+
+        // We still need to load the font once so JavaFX knows it exists for the CSS to use it
+        Font.loadFont(getClass().getResourceAsStream("/PixelifySans.ttf"), 28);
+
+        // Create Labels and apply CSS class
+        Label musicLabel = new Label("Music");
+        musicLabel.getStyleClass().add("button-label"); // <--- CSS Class
+
+        Label sfxLabel = new Label("SFX");
+        sfxLabel.getStyleClass().add("button-label");   // <--- CSS Class
+
+        // Group Music
+        HBox musicGroup = new HBox(15);
+        musicGroup.setAlignment(Pos.CENTER_LEFT);
+        musicGroup.getChildren().addAll(musicButtonRef, musicLabel);
+
+        // Group SFX
+        HBox sfxGroup = new HBox(15);
+        sfxGroup.setAlignment(Pos.CENTER_LEFT);
+        sfxGroup.getChildren().addAll(sfxButtonRef, sfxLabel);
+
+        // Main Container
+        iconButtonContainer.setAlignment(Pos.CENTER);
+        iconButtonContainer.setSpacing(60);
+        iconButtonContainer.getChildren().addAll(musicGroup, sfxGroup);
+
+        // ---------------------------------------------------------
+
         controlsButtonRef = createWideButton("/images/Controls_Button.png", "/images/Controls_After.png", 276, 57, this::goToControls);
         mainMenuButtonRef = createWideButton("/images/Main_Menu_2_Button.png", "/images/Main_Menu_2_After.png", 276, 57, this::goToMainMenu);
         backButtonRef = createWideButton("/images/Back_Button.png", "/images/Back_After.png", 276, 57, this::goBack);
@@ -81,7 +109,6 @@ public class OptionsMenu {
             updateSFXButtonVisual();
             updateAllButtonSFX();
 
-            // Set initial volume for manual playback clip
             if (buttonClickSound != null) {
                 buttonClickSound.setVolume(sfxOn ? 1.0 : 0.0);
             }
@@ -127,17 +154,12 @@ public class OptionsMenu {
         ButtonSFX btn = new ButtonSFX(path, hoverPath);
         btn.setFitWidth(width);
         btn.setFitHeight(height);
-
-        // FIX: Use addEventHandler to append action, preserving SFX handler
         btn.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> action.run());
-
-        // FIX: Sync SFX mute with gui controller state upon creation
         if (this.guiController != null) {
             btn.setSFXMuted(this.guiController.isSFXMuted());
         } else {
             btn.setSFXMuted(!this.sfxOn);
         }
-
         return btn;
     }
 
@@ -145,57 +167,35 @@ public class OptionsMenu {
         ButtonSFX btn = new ButtonSFX(path, hoverPath);
         btn.setFitWidth(width);
         btn.setFitHeight(height);
-
-        // FIX: Use addEventHandler to append action, preserving SFX handler
         btn.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> action.run());
-
-        // FIX: Sync SFX mute with gui controller state upon creation
         if (this.guiController != null) {
             btn.setSFXMuted(this.guiController.isSFXMuted());
         } else {
             btn.setSFXMuted(!this.sfxOn);
         }
-
         return btn;
     }
 
-
     private void toggleMusic() {
         musicOn = !musicOn;
-
-        if (guiController != null) {
-            guiController.setMusicMute(!musicOn);
-        }
+        if (guiController != null) guiController.setMusicMute(!musicOn);
         updateMusicButtonVisual();
     }
 
     private void toggleSFX() {
-        boolean wasSFXOn = sfxOn; // Store state BEFORE toggle
+        boolean wasSFXOn = sfxOn;
         sfxOn = !sfxOn;
-
-        if (guiController != null) {
-            guiController.setSFXMute(!sfxOn);
-        }
-
+        if (guiController != null) guiController.setSFXMute(!sfxOn);
         updateSFXButtonVisual();
         updateAllButtonSFX();
-
-        // FIX 1: Manually play the sound only if SFX was just turned ON
-        if (!wasSFXOn && buttonClickSound != null) {
-            buttonClickSound.play();
-        }
-
-        // Update volume for manual playback clip
-        if (buttonClickSound != null) {
-            buttonClickSound.setVolume(sfxOn ? 1.0 : 0.0);
-        }
+        if (!wasSFXOn && buttonClickSound != null) buttonClickSound.play();
+        if (buttonClickSound != null) buttonClickSound.setVolume(sfxOn ? 1.0 : 0.0);
     }
 
     private void goToControls() {
         if (guiController != null) {
             guiController.hideOptionsMenu();
-            // TODO: Implement showControlsMenu() in GuiController
-            guiController.showMainMenu();
+            guiController.showControlsMenu();
         }
     }
 
@@ -207,26 +207,18 @@ public class OptionsMenu {
     }
 
     private void goBack() {
-        // FIX 2: Manually play SFX right before the menu transition if SFX is currently ON
-        if (sfxOn && buttonClickSound != null) {
-            buttonClickSound.play();
-        }
-
+        if (sfxOn && buttonClickSound != null) buttonClickSound.play();
         if (guiController != null) {
             guiController.hideOptionsMenu();
-            guiController.showPauseMenu();
+            if (!guiController.isMainMenuOpen()) guiController.showPauseMenu();
         }
     }
 
     private Image loadImage(String path) {
         try {
-            if (getClass().getResource(path) == null) {
-                System.out.println("Resource not found: " + path);
-                return null;
-            }
+            if (getClass().getResource(path) == null) return null;
             return new Image(getClass().getResource(path).toExternalForm());
         } catch (Exception e) {
-            System.err.println("Error loading image " + path + ": " + e.getMessage());
             return null;
         }
     }

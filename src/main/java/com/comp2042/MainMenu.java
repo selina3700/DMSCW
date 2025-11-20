@@ -6,11 +6,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.scene.input.MouseEvent; // <-- New Import
+import javafx.scene.input.MouseEvent;
 
 public class MainMenu {
 
-    @FXML private StackPane root;
+    @FXML private StackPane root; // This must match fx:id="root" in FXML
     @FXML private ImageView logoImage;
     @FXML private VBox buttonContainer;
 
@@ -23,20 +23,16 @@ public class MainMenu {
 
     public void setGuiController(GuiController guiController) {
         this.guiController = guiController;
-        // FIX: Sync button states immediately when controller is set
         syncButtonStates();
     }
 
     @FXML
     private void initialize() {
-        //Logo
         try {
             logoImage.setImage(new Image(getClass().getResource("/images/Tetris.png").toExternalForm()));
         } catch (Exception e) {
             System.out.println("Logo not found");
         }
-
-        // Buttons
         createButtons();
     }
 
@@ -51,7 +47,6 @@ public class MainMenu {
     private void syncButtonStates() {
         if (guiController == null || buttonContainer == null) return;
         boolean isMuted = guiController.isSFXMuted();
-
         for (javafx.scene.Node node : buttonContainer.getChildren()) {
             if (node instanceof ButtonSFX) {
                 ((ButtonSFX) node).setSFXMuted(isMuted);
@@ -61,19 +56,12 @@ public class MainMenu {
 
     private ButtonSFX createButton(String path, String hoverPath, Runnable action) {
         ButtonSFX btn = new ButtonSFX(path, hoverPath);
-
-        // Fixed Size
         btn.setFitWidth(276);
         btn.setFitHeight(57);
-
-        // FIX: Use addEventHandler to append the custom action.
         btn.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> action.run());
-
-        // FIX: Manually set the SFX mute state right after creation if controller is available
         if (guiController != null) {
             btn.setSFXMuted(guiController.isSFXMuted());
         }
-
         return btn;
     }
 
@@ -82,15 +70,12 @@ public class MainMenu {
     }
 
     private void quitGame() {
-        if (primaryStage != null) {
-            primaryStage.close();
-        }
+        if (primaryStage != null) primaryStage.close();
     }
 
     private void optionsMenu() {
         if (guiController != null) {
-            guiController.hideMainMenu();
-            guiController.showOptionsMenu();
+            guiController.showOptionsMenu(root);
         }
     }
 }

@@ -1,0 +1,7 @@
+.controls-root {
+    -fx-background-image: url("/images/Controls_Menu.png");
+    -fx-background-size: cover;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-background-color: #191B43;
+}

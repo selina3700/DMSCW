@@ -18,20 +18,24 @@ public class Main extends Application {
     public void start(Stage stage) throws Exception {
         primaryStage = stage;
 
-        // Load the main menu first
-        FXMLLoader menuLoader = new FXMLLoader(getClass().getResource("/mainMenu.fxml"));
-        Parent menuRoot = menuLoader.load();
+        // ---------------------------------------------------------
+        // FIX: Load the GAME (GuiController) first, not the Menu
+        // ---------------------------------------------------------
+        URL location = getClass().getResource("/gameLayout.fxml");
+        FXMLLoader loader = new FXMLLoader(location);
+        Parent root = loader.load();
 
-        // Get the MainMenu controller and set up the stage reference
-        MainMenu mainMenuController = menuLoader.getController();
-        mainMenuController.setPrimaryStage(primaryStage);
+        // Get the GuiController
+        GuiController c = loader.getController();
 
-        // Title
-        primaryStage.setTitle("TetrisJFX");
+        // Initialize the Game Logic (Connects GameController to GuiController)
+        new GameController(c);
 
-        // Scene/Window with main menu
-        scene = new Scene(menuRoot, 450, 550);
+        // Set up the Scene with the game root temporarily
+        scene = new Scene(root, 450, 550);
         scene.getStylesheets().add(getClass().getResource("/window_style.css").toExternalForm());
+
+        primaryStage.setTitle("TetrisJFX");
         primaryStage.setScene(scene);
 
         // Disable Maximizing and Resizing
@@ -39,9 +43,15 @@ public class Main extends Application {
         primaryStage.setMaximized(false);
 
         primaryStage.show();
+
+        // ---------------------------------------------------------
+        // NOW: Immediately overlay the Main Menu
+        // This ensures the MainMenu receives the 'c' (GuiController) reference
+        // ---------------------------------------------------------
+        c.showMainMenu();
     }
 
-    // Method to start the game from main menu
+    // Method to start the game (Called when 'Start' is clicked in Menu)
     public static void startGame() {
         try {
             // Load the game layout
@@ -66,7 +76,6 @@ public class Main extends Application {
         }
     }
 
-    // Launch Application
     public static void main(String[] args) {
         launch(args);
     }

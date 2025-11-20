@@ -85,9 +85,11 @@ public class GuiController implements Initializable {
     private Color getDarker;
 
     private Pane currentOptionsMenu;
+    private Pane currentControlsMenu;
 
     private boolean isMusicMuted = false;
     private boolean isSFXMuted = false;
+    private boolean isMainMenuOpen = false;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -119,19 +121,19 @@ public class GuiController implements Initializable {
             public void handle(KeyEvent keyEvent) {
                 //Only can move if the game is not paused or over
                 if (isPause.getValue() == Boolean.FALSE && isGameOver.getValue() == Boolean.FALSE) {
-                    if (keyEvent.getCode() == KeyCode.LEFT || keyEvent.getCode() == KeyCode.A) {
+                    if (keyEvent.getCode() == KeyCode.LEFT) {
                         refreshBrick(eventListener.onLeftEvent(new MoveEvent(EventType.LEFT, EventSource.USER)));
                         keyEvent.consume();
                     }
-                    if (keyEvent.getCode() == KeyCode.RIGHT || keyEvent.getCode() == KeyCode.D) {
+                    if (keyEvent.getCode() == KeyCode.RIGHT) {
                         refreshBrick(eventListener.onRightEvent(new MoveEvent(EventType.RIGHT, EventSource.USER)));
                         keyEvent.consume();
                     }
-                    if (keyEvent.getCode() == KeyCode.UP || keyEvent.getCode() == KeyCode.W) {
+                    if (keyEvent.getCode() == KeyCode.UP) {
                         refreshBrick(eventListener.onRotateEvent(new MoveEvent(EventType.ROTATE, EventSource.USER)));
                         keyEvent.consume();
                     }
-                    if (keyEvent.getCode() == KeyCode.DOWN || keyEvent.getCode() == KeyCode.S) {
+                    if (keyEvent.getCode() == KeyCode.DOWN) {
                         moveDown(new MoveEvent(EventType.DOWN, EventSource.USER));
                         keyEvent.consume();
                     }
@@ -400,6 +402,15 @@ public class GuiController implements Initializable {
 
     //Reset the board and start a new game
     public void newGame(ActionEvent actionEvent) {
+        // 1. Swap Root back to GamePanel if needed
+        if (gamePanel.getScene() == null && MainMenu != null && MainMenu.getScene() != null) {
+            MainMenu.getScene().setRoot(gamePanel);
+        }
+
+        // 2. Reset state
+        hideMainMenu();
+
+        // 3. Standard reset logic
         timeLine.stop();
         gameOverPanel.setVisible(false);
         eventListener.createNewGame();
@@ -412,7 +423,6 @@ public class GuiController implements Initializable {
             bgmPlayer.stop();
             bgmPlayer.play();
         }
-
     }
 
     //Pause the game
@@ -561,26 +571,22 @@ public class GuiController implements Initializable {
 
     public void showMainMenu() {
         try {
-            // Stop the game
-            if (timeLine != null) {
-                timeLine.stop();
-            }
-
-            // Hide pause menu if it's showing
+            if (timeLine != null) timeLine.stop();
             hidePauseMenu();
 
-            // Load the main menu FXML
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/mainMenu.fxml"));
             StackPane mainMenuPane = loader.load();
 
-            // Set the controller
             MainMenu mainMenuController = loader.getController();
             mainMenuController.setPrimaryStage((Stage) gamePanel.getScene().getWindow());
+            mainMenuController.setGuiController(this);
 
-            mainMenuController.setGuiController(this); // Calls syncButtonStates inside MainMenu
-
-            // Replace the scene root with main menu
+            // Set the Main Menu as the Scene Root
             gamePanel.getScene().setRoot(mainMenuPane);
+
+            // Track state
+            MainMenu = mainMenuPane;
+            isMainMenuOpen = true;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -588,78 +594,75 @@ public class GuiController implements Initializable {
         }
     }
 
-    public void showOptionsMenu() {
-        try {
-            System.out.println("showOptionsMenu called");
+    public void hideMainMenu() {
+        // Since MainMenu replaces the root, we don't "remove" it like a popup.
+        // We just clear the reference.
+        MainMenu = null;
+        isMainMenuOpen = false;
+    }
 
+    // Getter for OptionsMenu to check
+    public boolean isMainMenuOpen() {
+        return isMainMenuOpen;
+    }
+
+    public void showOptionsMenu() {
+        showOptionsMenu(null);
+    }
+
+    // 2. Specific method (used by Main Menu)
+    public void showOptionsMenu(Pane specificRoot) {
+        try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/optionsMenu.fxml"));
             Pane optionsPane = loader.load();
 
-            System.out.println("Options pane loaded");
-
             OptionsMenu controller = loader.getController();
-            controller.setGuiController(this); // Calls syncButtonStates inside OptionsMenu
+            controller.setGuiController(this);
 
-            // Find the scene root to overlay the options pane onto.
-            javafx.scene.Parent rootParent = null;
+            // DETERMINING THE PARENT ROOT
+            javafx.scene.Parent rootParent = specificRoot;
 
-            // 1) Try gamePanel if it's attached
-            if (gamePanel != null && gamePanel.getScene() != null) {
-                rootParent = gamePanel.getScene().getRoot();
-                System.out.println("Got root from gamePanel");
-            }
-
-            // 2) If not found, use the focused window's scene root (more reliable than first showing window)
+            // If no specific root passed, try to find it automatically
             if (rootParent == null) {
-                System.out.println("gamePanel root not available, searching focused window...");
-                for (Window window : Window.getWindows()) {
-                    if (window.isShowing() && window.isFocused() && window instanceof Stage) {
-                        Stage stage = (Stage) window;
-                        if (stage.getScene() != null && stage.getScene().getRoot() != null) {
-                            rootParent = stage.getScene().getRoot();
-                            System.out.println("Got root from focused window");
-                            break;
-                        }
-                    }
+                // A. Is Main Menu currently open? Use that reference.
+                if (MainMenu != null && MainMenu.getScene() != null) {
+                    rootParent = MainMenu;
                 }
-            }
-
-            // 3) If still not found, fallback to first showing stage's root
-            if (rootParent == null) {
-                System.out.println("Searching any showing window...");
-                for (Window window : Window.getWindows()) {
-                    if (window.isShowing() && window instanceof Stage) {
-                        Stage stage = (Stage) window;
-                        if (stage.getScene() != null && stage.getScene().getRoot() != null) {
-                            rootParent = stage.getScene().getRoot();
-                            System.out.println("Got root from first showing window");
-                            break;
+                // B. Try Game Panel
+                else if (gamePanel != null && gamePanel.getScene() != null) {
+                    rootParent = gamePanel.getScene().getRoot();
+                }
+                // C. Fallback: Find the active Window
+                else {
+                    for (Window window : Window.getWindows()) {
+                        if (window.isShowing() && window instanceof Stage) {
+                            Scene scene = ((Stage) window).getScene();
+                            if (scene != null) {
+                                rootParent = scene.getRoot();
+                                break;
+                            }
                         }
                     }
                 }
             }
 
             if (rootParent == null) {
-                System.err.println("ERROR: Could not find parent root for options menu");
+                System.out.println("ERROR: Could not find root to attach Options Menu.");
                 return;
             }
 
-            // If the existing root is already a Pane, overlay directly; else create a StackPane wrapper
+            // Attach the menu
             Pane overlayParent;
             if (rootParent instanceof Pane) {
                 overlayParent = (Pane) rootParent;
             } else {
-                // Wrap existing root into a StackPane so we can overlay optionsPane without replacing scene root
-                System.out.println("Root is not a Pane; wrapping into StackPane overlay");
-                StackPane wrapper = new StackPane();
-                wrapper.getChildren().add(rootParent);
-                // replace scene root with wrapper
-                Stage stage = (Stage) rootParent.getScene().getWindow();
-                stage.getScene().setRoot(wrapper);
+                // Wrap if the root isn't a Pane (rare, but safe)
+                StackPane wrapper = new StackPane(rootParent);
+                rootParent.getScene().setRoot(wrapper);
                 overlayParent = wrapper;
             }
 
-            System.out.println("Setting up options pane...");
+            // Resize logic
             optionsPane.setPrefSize(overlayParent.getWidth(), overlayParent.getHeight());
             optionsPane.prefWidthProperty().bind(overlayParent.widthProperty());
             optionsPane.prefHeightProperty().bind(overlayParent.heightProperty());
@@ -667,11 +670,8 @@ public class GuiController implements Initializable {
             overlayParent.getChildren().add(optionsPane);
             currentOptionsMenu = optionsPane;
 
-            System.out.println("Options menu displayed successfully");
-
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Error loading Options menu: " + e.getMessage());
         }
     }
 
@@ -689,12 +689,6 @@ public class GuiController implements Initializable {
         if (pauseMenu != null) {
             ((Pane) gamePanel.getScene().getRoot()).getChildren().remove(pauseMenu);
             pauseMenu = null;
-        }
-    }
-    public void hideMainMenu() {
-        if (MainMenu != null) {
-            ((Pane) gamePanel.getScene().getRoot()).getChildren().remove(MainMenu);
-            MainMenu = null;
         }
     }
 
@@ -731,11 +725,78 @@ public class GuiController implements Initializable {
         return isSFXMuted;
     }
 
-    // Update your existing setMusicMute method
     public void setMusicMute(boolean mute) {
         this.isMusicMuted = mute;
         if (bgmPlayer != null) {
             bgmPlayer.setMute(mute);
         }
     }
+
+    public void showControlsMenu() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/controlsMenu.fxml"));
+            Pane controlsPane = loader.load();
+
+            ControlsMenu controller = loader.getController();
+            controller.setGuiController(this);
+
+            // Logic to find the correct root to overlay on (same as your OptionsMenu logic)
+            javafx.scene.Parent rootParent = null;
+
+            // 1. Try gamePanel
+            if (gamePanel != null && gamePanel.getScene() != null) {
+                rootParent = gamePanel.getScene().getRoot();
+            }
+
+            // 2. Try focused window
+            if (rootParent == null) {
+                for (Window window : Window.getWindows()) {
+                    if (window.isShowing() && window.isFocused() && window instanceof Stage) {
+                        Stage stage = (Stage) window;
+                        if (stage.getScene() != null) {
+                            rootParent = stage.getScene().getRoot();
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // 3. Fallback
+            if (rootParent == null) {
+                System.out.println("Could not find root for Controls Menu");
+                return;
+            }
+
+            Pane overlayParent;
+            if (rootParent instanceof Pane) {
+                overlayParent = (Pane) rootParent;
+            } else {
+                StackPane wrapper = new StackPane();
+                wrapper.getChildren().add(rootParent);
+                Stage stage = (Stage) rootParent.getScene().getWindow();
+                stage.getScene().setRoot(wrapper);
+                overlayParent = wrapper;
+            }
+
+            // Bind size to fill screen
+            controlsPane.setPrefSize(overlayParent.getWidth(), overlayParent.getHeight());
+            controlsPane.prefWidthProperty().bind(overlayParent.widthProperty());
+            controlsPane.prefHeightProperty().bind(overlayParent.heightProperty());
+
+            overlayParent.getChildren().add(controlsPane);
+            currentControlsMenu = controlsPane;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error loading Controls menu: " + e.getMessage());
+        }
+    }
+
+    public void hideControlsMenu() {
+        if (currentControlsMenu != null && currentControlsMenu.getParent() instanceof Pane) {
+            ((Pane) currentControlsMenu.getParent()).getChildren().remove(currentControlsMenu);
+            currentControlsMenu = null;
+        }
+    }
+
 }

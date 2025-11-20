@@ -5,8 +5,10 @@
 <?import javafx.scene.image.ImageView?>
 <?import java.net.URL?>
 
-<StackPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.comp2042.MainMenu"
-           maxWidth="Infinity" maxHeight="Infinity" styleClass="pause-root">
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.comp2042.MainMenu"
+           fx:id="root">
 
     <VBox alignment="CENTER" spacing="20" styleClass="buttons-container"
           prefHeight="498" prefWidth="402" maxHeight="498" maxWidth="402">

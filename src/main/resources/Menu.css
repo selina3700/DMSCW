@@ -12,3 +12,10 @@
     -fx-border-width: 5;
     -fx-border-style: solid;
 }
+
+.button-label {
+    -fx-text-fill: white;
+    -fx-font-family: "Pixelify Sans", sans-serif;
+    -fx-font-size: 28px;
+    -fx-font-style: normal;
+}
