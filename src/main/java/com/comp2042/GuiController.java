@@ -166,8 +166,6 @@ public class GuiController implements Initializable {
         reflection.setTopOffset(-12);
 
         setupPauseButton();
-
-        initializeBackgroundMusic();
     }
 
     public void initGameView(int[][] boardMatrix, ViewData brick, double initialSpeed) {
@@ -362,7 +360,9 @@ public class GuiController implements Initializable {
         timeLine.stop();
         gameOverPanel.setVisible(true);
         isGameOver.setValue(Boolean.TRUE);
-        if (bgmPlayer != null) bgmPlayer.stop();
+        if (bgmPlayer != null) {
+            bgmPlayer.stop();
+        }
     }
 
     //Drops the brick immediately
@@ -419,24 +419,38 @@ public class GuiController implements Initializable {
         isPause.setValue(Boolean.FALSE);
         isGameOver.setValue(Boolean.FALSE);
 
+        // 4. Handle BGM - restart from beginning
         if (bgmPlayer != null) {
             bgmPlayer.stop();
-            bgmPlayer.play();
+            bgmPlayer.seek(bgmPlayer.getStartTime());
+            bgmPlayer.play();  // Always call play, mute state handles audio
         }
     }
 
     //Pause the game
     public void pauseGame(ActionEvent actionEvent) {
+        System.out.println("=== pauseGame() called, isPause=" + isPause.get() + " ===");
+
         if (isPause.get()) {
+            // Already paused, so resume
             resumeGame();
             hidePauseMenu();
         } else {
+            // Pause the game
             timeLine.pause();
             isPause.set(true);
-            showPauseMenu();
-            if (bgmPlayer != null) bgmPlayer.pause();
-        }
 
+            // Pause BGM
+            if (bgmPlayer != null) {
+                System.out.println("Pausing BGM, status BEFORE: " + bgmPlayer.getStatus());
+                bgmPlayer.pause();
+                System.out.println("BGM status AFTER pause: " + bgmPlayer.getStatus());
+            } else {
+                System.out.println("ERROR: bgmPlayer is NULL!");
+            }
+
+            showPauseMenu();
+        }
         gamePanel.requestFocus();
     }
 
@@ -554,7 +568,7 @@ public class GuiController implements Initializable {
             pauseMenu = loader.load();
 
             PauseMenu controller = loader.getController();
-            controller.setGuiController(this); // Calls syncButtonStates inside PauseMenu
+            controller.setGuiController(this);
 
             Pane root = (Pane) gamePanel.getScene().getRoot();
 
@@ -563,6 +577,8 @@ public class GuiController implements Initializable {
             pauseMenu.prefHeightProperty().bind(root.heightProperty());
 
             root.getChildren().add(pauseMenu);
+
+            // BGM is already paused in pauseGame(), no need to pause again
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -581,10 +597,8 @@ public class GuiController implements Initializable {
             mainMenuController.setPrimaryStage((Stage) gamePanel.getScene().getWindow());
             mainMenuController.setGuiController(this);
 
-            // Set the Main Menu as the Scene Root
             gamePanel.getScene().setRoot(mainMenuPane);
 
-            // Track state
             MainMenu = mainMenuPane;
             isMainMenuOpen = true;
 
@@ -593,6 +607,7 @@ public class GuiController implements Initializable {
             System.out.println("Error loading main menu: " + e.getMessage());
         }
     }
+
 
     public void hideMainMenu() {
         // Since MainMenu replaces the root, we don't "remove" it like a popup.
@@ -692,11 +707,6 @@ public class GuiController implements Initializable {
         }
     }
 
-    public void resumeGame() {
-        timeLine.play();
-        isPause.set(false);
-        if (bgmPlayer != null) bgmPlayer.play();
-    }
 
     public GridPane getGamePanel() {
         return gamePanel;
@@ -705,15 +715,27 @@ public class GuiController implements Initializable {
 
     //Background Music
     private void initializeBackgroundMusic() {
+        System.out.println("=== initializeBackgroundMusic() called ===");
         try {
-            Media sound = new Media(getClass().getResource("/sounds/bgm.mp3").toExternalForm());
+            if (bgmPlayer != null) {
+                bgmPlayer.stop();
+                bgmPlayer.dispose();
+            }
+
+            String bgmPath = getClass().getResource("/sounds/bgm.mp3").toExternalForm();
+            System.out.println("BGM path: " + bgmPath);
+
+            Media sound = new Media(bgmPath);
             bgmPlayer = new MediaPlayer(sound);
             bgmPlayer.setCycleCount(MediaPlayer.INDEFINITE);
             bgmPlayer.setVolume(0.5);
-            bgmPlayer.play();
+            bgmPlayer.setMute(isMusicMuted);
+
+            System.out.println("bgmPlayer created successfully: " + (bgmPlayer != null));
+
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Error loading background music: " + e.getMessage());
+            System.out.println("ERROR loading background music: " + e.getMessage());
         }
     }
 
@@ -726,9 +748,35 @@ public class GuiController implements Initializable {
     }
 
     public void setMusicMute(boolean mute) {
+        System.out.println("=== GuiController.setMusicMute(" + mute + ") ===");
         this.isMusicMuted = mute;
+
         if (bgmPlayer != null) {
+            System.out.println("bgmPlayer status BEFORE: " + bgmPlayer.getStatus());
+            System.out.println("bgmPlayer.isMute() BEFORE: " + bgmPlayer.isMute());
+
             bgmPlayer.setMute(mute);
+
+            System.out.println("bgmPlayer.isMute() AFTER: " + bgmPlayer.isMute());
+            System.out.println("bgmPlayer status AFTER: " + bgmPlayer.getStatus());
+        } else {
+            System.out.println("ERROR: bgmPlayer is NULL!");
+        }
+    }
+
+    public void resumeGame() {
+        System.out.println("=== resumeGame() called ===");
+
+        timeLine.play();
+        isPause.set(false);
+
+        // Resume BGM (setMute handles whether you hear it)
+        if (bgmPlayer != null) {
+            System.out.println("Resuming BGM, isMusicMuted=" + isMusicMuted);
+            bgmPlayer.play();
+            System.out.println("BGM status after play: " + bgmPlayer.getStatus());
+        } else {
+            System.out.println("ERROR: bgmPlayer is NULL in resumeGame!");
         }
     }
 
@@ -798,5 +846,37 @@ public class GuiController implements Initializable {
             currentControlsMenu = null;
         }
     }
+
+    public void onSceneLoaded() {
+        System.out.println("=== onSceneLoaded() called ===");
+        System.out.println("bgmPlayer is null BEFORE init? " + (bgmPlayer == null));
+
+        if (bgmPlayer == null) {
+            initializeBackgroundMusic();
+        }
+
+        System.out.println("bgmPlayer is null AFTER init? " + (bgmPlayer == null));
+
+        if (bgmPlayer != null) {
+            bgmPlayer.play();
+            System.out.println("BGM started playing, status: " + bgmPlayer.getStatus());
+        } else {
+            System.out.println("ERROR: bgmPlayer is STILL NULL after initialization!");
+        }
+    }
+
+    public void startBGM() {
+        if (bgmPlayer != null && !isMusicMuted) {
+            bgmPlayer.play();
+        }
+    }
+
+    // 7. Add a method to stop BGM completely (for cleanup)
+    public void stopBGM() {
+        if (bgmPlayer != null) {
+            bgmPlayer.stop();
+        }
+    }
+
 
 }

@@ -35,6 +35,9 @@ public class OptionsMenu {
     @FXML private HBox iconButtonContainer;
 
     public void setGuiController(GuiController controller) {
+        System.out.println("=== OptionsMenu.setGuiController() called ===");
+        System.out.println("controller is null? " + (controller == null));
+
         this.guiController = controller;
         syncButtonStates();
     }
@@ -177,8 +180,21 @@ public class OptionsMenu {
     }
 
     private void toggleMusic() {
+        System.out.println("=== toggleMusic() called ===");
+        System.out.println("musicOn BEFORE: " + musicOn);
+
         musicOn = !musicOn;
-        if (guiController != null) guiController.setMusicMute(!musicOn);
+
+        System.out.println("musicOn AFTER: " + musicOn);
+        System.out.println("guiController is null? " + (guiController == null));
+
+        if (guiController != null) {
+            System.out.println("Calling guiController.setMusicMute(" + !musicOn + ")");
+            guiController.setMusicMute(!musicOn);
+        } else {
+            System.out.println("ERROR: guiController is NULL - cannot mute music!");
+        }
+
         updateMusicButtonVisual();
     }
 
