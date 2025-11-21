@@ -39,6 +39,7 @@
 .bonusStyle {
     -fx-font-size: 40px;
     -fx-font-weight: bold;
+    -fx-font-family: "Press Start 2P", system-ui;
 }
 
 .gameOverStyle {

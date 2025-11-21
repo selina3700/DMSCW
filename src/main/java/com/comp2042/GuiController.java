@@ -95,6 +95,7 @@ public class GuiController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
 
         Font.loadFont(getClass().getResourceAsStream("/PixelifySans.ttf"), 38);
+        Font font = Font.loadFont(getClass().getResourceAsStream("/PressStart.ttf"), 38);
 
         //Receive keyboard input & ensure grids have no gaps
         gamePanel.setPadding(Insets.EMPTY);

@@ -30,7 +30,7 @@
             </VBox>
         </Group>
     </Pane>
-    <VBox fx:id="leftPanel" layoutX="5" layoutY="10">
+    <VBox fx:id="leftPanel" layoutX="-2" layoutY="10">
         <!-- Score label -->
         <Label fx:id="scoreLabel" text="Score: 0"
                styleClass="bindScoreStyle"
