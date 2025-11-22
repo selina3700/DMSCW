@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.image.ImageView?>
+<?import java.net.URL?>
+
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:id="root"
+           maxWidth="Infinity" maxHeight="Infinity">
+
+    <!-- Inner popup container with border -->
+    <VBox alignment="CENTER"
+          maxWidth="324"
+          maxHeight="401"
+          spacing="15"
+          styleClass="buttons-container">
+
+        <!-- Game Over Image -->
+        <ImageView fx:id="gameOverImage"
+                   fitWidth="240"
+                   preserveRatio="true"/>
+
+        <!-- Icon buttons row (Home, Restart, Settings) -->
+        <HBox fx:id="iconButtonContainer"
+              alignment="CENTER"
+              spacing="15">
+        </HBox>
+
+        <!-- Quit button container -->
+        <VBox fx:id="quitButtonContainer"
+              alignment="CENTER">
+        </VBox>
+    </VBox>
+
+    <stylesheets>
+        <URL value="@Menu.css"/>
+    </stylesheets>
+</StackPane>

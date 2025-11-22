@@ -359,11 +359,24 @@ public class GuiController implements Initializable {
     //Displays game over screen and stop brick movement
     public void gameOver() {
         timeLine.stop();
-        gameOverPanel.setVisible(true);
+        setPauseButtonEnabled(false);
         isGameOver.setValue(Boolean.TRUE);
+
         if (bgmPlayer != null) {
             bgmPlayer.stop();
         }
+
+        // Add gameOverPanel to root and make it fill the screen
+        Pane root = (Pane) gamePanel.getScene().getRoot();
+
+        if (!root.getChildren().contains(gameOverPanel)) {
+            gameOverPanel.prefWidthProperty().bind(root.widthProperty());
+            gameOverPanel.prefHeightProperty().bind(root.heightProperty());
+            root.getChildren().add(gameOverPanel);
+        }
+
+        gameOverPanel.setGuiController(this);
+        gameOverPanel.setVisible(true);
     }
 
     //Drops the brick immediately
@@ -420,11 +433,14 @@ public class GuiController implements Initializable {
         isPause.setValue(Boolean.FALSE);
         isGameOver.setValue(Boolean.FALSE);
 
-        // 4. Handle BGM - restart from beginning
+        // 4. RE-ENABLE the pause button
+        setPauseButtonEnabled(true);
+
+        // 5. Handle BGM - restart from beginning
         if (bgmPlayer != null) {
             bgmPlayer.stop();
             bgmPlayer.seek(bgmPlayer.getStartTime());
-            bgmPlayer.play();  // Always call play, mute state handles audio
+            bgmPlayer.play();
         }
     }
 
@@ -462,14 +478,23 @@ public class GuiController implements Initializable {
 
         pauseButton.setLayoutX(5);
         pauseButton.setLayoutY(10);
-        // Using setOnMouseClicked here is fine since it doesn't interrupt other handlers
-        pauseButton.setOnMouseClicked(event -> pauseGame(null));
 
-        // Set initial SFX mute state
+        // Modified: Check if game is over before allowing pause
+        pauseButton.setOnMouseClicked(event -> {
+            if (isGameOver.getValue() == Boolean.FALSE) {
+                pauseGame(null);
+            }
+        });
+
         pauseButton.setSFXMuted(isSFXMuted);
-
-        //Display
         buttonGroup.getChildren().add(pauseButton);
+    }
+
+    public void setPauseButtonEnabled(boolean enabled) {
+        if (pauseButton != null) {
+            pauseButton.setDisable(!enabled);
+            pauseButton.setOpacity(enabled ? 1.0 : 0.5);
+        }
     }
 
     // Update the setSFXMute method to also update the pause button:
@@ -879,5 +904,31 @@ public class GuiController implements Initializable {
         }
     }
 
+    public GameOverPanel getGameOverPanel() {
+        return gameOverPanel;
+    }
+
+    public void showOptionsMenuFromGameOver() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/optionsMenu.fxml"));
+            Pane optionsPane = loader.load();
+
+            OptionsMenu controller = loader.getController();
+            controller.setGuiController(this);
+            controller.setOpenedFromGameOver(true);  // <-- Tell it where it came from
+
+            Pane root = (Pane) gamePanel.getScene().getRoot();
+
+            optionsPane.setPrefSize(root.getWidth(), root.getHeight());
+            optionsPane.prefWidthProperty().bind(root.widthProperty());
+            optionsPane.prefHeightProperty().bind(root.heightProperty());
+
+            root.getChildren().add(optionsPane);
+            currentOptionsMenu = optionsPane;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 }

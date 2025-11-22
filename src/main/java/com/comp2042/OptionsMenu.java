@@ -18,6 +18,7 @@ public class OptionsMenu {
     private ButtonSFX controlsButtonRef;
     private ButtonSFX mainMenuButtonRef;
     private ButtonSFX backButtonRef;
+    private boolean openedFromGameOver = false;
 
     private boolean musicOn = true;
     private boolean sfxOn = true;
@@ -41,6 +42,11 @@ public class OptionsMenu {
         this.guiController = controller;
         syncButtonStates();
     }
+
+    public void setOpenedFromGameOver(boolean fromGameOver) {
+        this.openedFromGameOver = fromGameOver;
+    }
+
 
     @FXML
     private void initialize() {
@@ -226,7 +232,14 @@ public class OptionsMenu {
         if (sfxOn && buttonClickSound != null) buttonClickSound.play();
         if (guiController != null) {
             guiController.hideOptionsMenu();
-            if (!guiController.isMainMenuOpen()) guiController.showPauseMenu();
+
+            if (openedFromGameOver) {
+                // Go back to game over screen - it's already visible, just show it
+                guiController.getGameOverPanel().setVisible(true);
+            } else if (!guiController.isMainMenuOpen()) {
+                guiController.showPauseMenu();
+            }
+            // If main menu is open, just closing options is enough
         }
     }
 
