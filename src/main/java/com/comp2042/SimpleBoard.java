@@ -9,17 +9,15 @@ public class SimpleBoard implements Board {
 
     private final int width;
     private final int height;
-    private final BrickGenerator brickGenerator;
+    private BrickGenerator brickGenerator;
     private final BrickRotator brickRotator;
     private int[][] currentGameMatrix;
     private Point currentOffset;
     private final Score score;
 
-    // --- NEW VARIABLES FOR HOLD FUNCTION ---
-    private Brick currentBrick; // Track the active brick
-    private Brick heldBrick;    // Track the held brick
-    private boolean hasHeldThisTurn = false; // Prevent infinite swapping
-    // ---------------------------------------
+    private Brick currentBrick;
+    private Brick heldBrick;
+    private boolean hasHeldThisTurn = false;
 
     public SimpleBoard(int width, int height) {
         this.width = width;
@@ -30,7 +28,6 @@ public class SimpleBoard implements Board {
         score = new Score();
     }
 
-    // ... (Keep moveBrickDown, Left, Right, Rotate logic exactly the same) ...
     @Override
     public boolean moveBrickDown() {
         int[][] currentMatrix = MatrixOperations.copy(currentGameMatrix);
@@ -88,41 +85,37 @@ public class SimpleBoard implements Board {
 
     @Override
     public boolean createNewBrick() {
-        // 1. Assign to currentBrick variable
         currentBrick = brickGenerator.getBrick();
         brickRotator.setBrick(currentBrick);
-
-        // 2. Reset the hold flag for the new turn
         hasHeldThisTurn = false;
 
-        currentOffset = new Point(4, 0);
-        return MatrixOperations.intersect(currentGameMatrix, brickRotator.getCurrentShape(), (int) currentOffset.getX(), (int) currentOffset.getY());
+        // Spawn at y=2 so the brick appears at the top of the VISIBLE board
+        // (The renderer uses yPosition-2, so y=2 renders at row 0)
+        currentOffset = new Point(3, 1);
+
+        return MatrixOperations.intersect(currentGameMatrix, brickRotator.getCurrentShape(),
+                (int) currentOffset.getX(), (int) currentOffset.getY());
     }
 
-    // --- NEW HOLD METHOD ---
     public void holdBrick() {
         if (hasHeldThisTurn) {
-            return; // Can only hold once per drop
+            return;
         }
 
         if (heldBrick == null) {
-            // Scenario 1: No brick held yet. Save current, get new.
             heldBrick = currentBrick;
             createNewBrick();
         } else {
-            // Scenario 2: Swap current with held.
             Brick temp = currentBrick;
             currentBrick = heldBrick;
             heldBrick = temp;
 
-            // Setup the swapped brick
             brickRotator.setBrick(currentBrick);
-            currentOffset = new Point(4, 0); // Reset position to top
+            currentOffset = new Point(3, 1);
         }
 
         hasHeldThisTurn = true;
     }
-    // -----------------------
 
     @Override
     public int[][] getBoardMatrix() {
@@ -131,7 +124,6 @@ public class SimpleBoard implements Board {
 
     @Override
     public ViewData getViewData() {
-        // We need to send the held brick data to the GUI
         int[][] heldMatrix = (heldBrick != null) ? heldBrick.getShapeMatrix().get(0) : null;
 
         return new ViewData(
@@ -143,7 +135,6 @@ public class SimpleBoard implements Board {
         );
     }
 
-    // ... (Keep mergeBrickToBackground, clearRows, getScore, newGame, isValidPosition the same) ...
     @Override
     public void mergeBrickToBackground() {
         currentGameMatrix = MatrixOperations.merge(currentGameMatrix, brickRotator.getCurrentShape(), (int) currentOffset.getX(), (int) currentOffset.getY());
@@ -165,7 +156,8 @@ public class SimpleBoard implements Board {
     public void newGame() {
         currentGameMatrix = new int[width][height];
         score.reset();
-        heldBrick = null; // Reset held brick on new game
+        heldBrick = null;
+        brickGenerator = new RandomBrickGenerator();
         createNewBrick();
     }
 

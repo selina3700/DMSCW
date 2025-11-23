@@ -9,7 +9,6 @@ import java.util.concurrent.ThreadLocalRandom;
 public class RandomBrickGenerator implements BrickGenerator {
 
     private final List<Brick> brickList;
-
     private final Deque<Brick> nextBricks = new ArrayDeque<>();
 
     public RandomBrickGenerator() {
@@ -22,23 +21,37 @@ public class RandomBrickGenerator implements BrickGenerator {
         brickList.add(new TBrick());
         brickList.add(new ZBrick());
 
-        //Randomly pick 2 bricks and add them to nextBricks
-        nextBricks.add(brickList.get(ThreadLocalRandom.current().nextInt(brickList.size())));
-        nextBricks.add(brickList.get(ThreadLocalRandom.current().nextInt(brickList.size())));
+        Brick first = getRandomBrick();
+        Brick second = getRandomBrick();
+        nextBricks.add(first);
+        nextBricks.add(second);
+
+        System.out.println("=== BRICK GENERATOR INITIALIZED ===");
+        System.out.println("Queue: [" + first.getClass().getSimpleName() + ", " + second.getClass().getSimpleName() + "]");
+    }
+
+    private Brick getRandomBrick() {
+        return brickList.get(ThreadLocalRandom.current().nextInt(brickList.size()));
     }
 
     @Override
     public Brick getBrick() {
-        if (nextBricks.size() <= 1) {
-            //Add new random brick to the queue
-            nextBricks.add(brickList.get(ThreadLocalRandom.current().nextInt(brickList.size())));
+        while (nextBricks.size() < 2) {
+            nextBricks.add(getRandomBrick());
         }
-        return nextBricks.poll();
+        Brick brick = nextBricks.poll();
+
+        // DEBUG: Print stack trace to see WHO is calling getBrick()
+        System.out.println("=== getBrick() called, returning: " + brick.getClass().getSimpleName() + " ===");
+        Thread.dumpStack();
+
+        return brick;
     }
 
     @Override
-    //Used for displaying next brick
     public Brick getNextBrick() {
-        return nextBricks.peek();
+        Brick next = nextBricks.peek();
+        System.out.println("getNextBrick() called, peeking: " + (next != null ? next.getClass().getSimpleName() : "null"));
+        return next;
     }
 }

@@ -107,6 +107,11 @@ public class GuiController implements Initializable {
         brickPanel.setPickOnBounds(false);
         brickPanel.setGridLinesVisible(false);
 
+        Rectangle clipRect = new Rectangle();
+        clipRect.widthProperty().bind(gamePanel.widthProperty());
+        clipRect.heightProperty().bind(gamePanel.heightProperty());
+        gamePanel.setClip(clipRect);
+
         //Clear row sfx
         try {
             String soundPath = getClass().getResource("/sounds/linecleared.mp3").toExternalForm();
@@ -222,7 +227,7 @@ public class GuiController implements Initializable {
         //Position the brick at the correct location on the board
 
         brickPanel.setLayoutX(gamePanel.getLayoutX() + (brick.getxPosition() * (BRICK_SIZE)));
-        brickPanel.setLayoutY(gamePanel.getLayoutY() + ((brick.getyPosition()-1) * (BRICK_SIZE)));
+        brickPanel.setLayoutY(gamePanel.getLayoutY() + ((brick.getyPosition() - 2) * (BRICK_SIZE)));
 
         //Moves the brick down automatically with the specified speed
         timeLine = new Timeline(new KeyFrame(
@@ -274,11 +279,23 @@ public class GuiController implements Initializable {
     public void refreshBrick(ViewData brick) {
         if (isPause.getValue() == Boolean.FALSE) {
             brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * BRICK_SIZE);
-            brickPanel.setLayoutY(gamePanel.getLayoutY() + (brick.getyPosition()-2) * BRICK_SIZE);
+            brickPanel.setLayoutY(gamePanel.getLayoutY() + (brick.getyPosition() - 2) * BRICK_SIZE);
+
+            int boardWidth = 10;  // Number of columns in your board
+            int boardHeight = 23; // Visible rows (25 - 2 hidden top rows)
 
             for (int i = 0; i < brick.getBrickData().length; i++) {
                 for (int j = 0; j < brick.getBrickData()[i].length; j++) {
-                    setRectangleData(brick.getBrickData()[i][j], rectangles[i][j]);
+                    int cellX = brick.getxPosition() + j;
+                    int cellY = brick.getyPosition() - 2 + i;
+
+                    // Hide cells that are outside the visible board
+                    if (cellX < 0 || cellX >= boardWidth || cellY < 0 || cellY >= boardHeight) {
+                        rectangles[i][j].setFill(Color.TRANSPARENT);
+                        rectangles[i][j].setStroke(Color.TRANSPARENT);
+                    } else {
+                        setRectangleData(brick.getBrickData()[i][j], rectangles[i][j]);
+                    }
                 }
             }
 
@@ -289,7 +306,6 @@ public class GuiController implements Initializable {
             if (brick.getHeldBrickData() != null) {
                 generateHoldBrickPreview(brick.getHeldBrickData());
             }
-
         }
     }
 
