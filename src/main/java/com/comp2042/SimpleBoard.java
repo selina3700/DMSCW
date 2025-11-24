@@ -14,6 +14,7 @@ public class SimpleBoard implements Board {
     private int[][] currentGameMatrix;
     private Point currentOffset;
     private final Score score;
+    private final GhostPiece ghostPiece;
 
     private Brick currentBrick;
     private Brick heldBrick;
@@ -26,6 +27,7 @@ public class SimpleBoard implements Board {
         brickGenerator = new RandomBrickGenerator();
         brickRotator = new BrickRotator();
         score = new Score();
+        ghostPiece = new GhostPiece();
     }
 
     @Override
@@ -126,12 +128,21 @@ public class SimpleBoard implements Board {
     public ViewData getViewData() {
         int[][] heldMatrix = (heldBrick != null) ? heldBrick.getShapeMatrix().get(0) : null;
 
+        int ghostY = ghostPiece.calculateGhostY(
+                currentGameMatrix,
+                brickRotator.getCurrentShape(),
+                (int) currentOffset.getX(),
+                (int) currentOffset.getY()
+        );
+
         return new ViewData(
                 brickRotator.getCurrentShape(),
                 (int) currentOffset.getX(),
                 (int) currentOffset.getY(),
                 brickGenerator.getNextBrick().getShapeMatrix().get(0),
-                heldMatrix
+                heldMatrix,
+                (int) currentOffset.getX(),
+                ghostY
         );
     }
 

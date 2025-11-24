@@ -66,6 +66,7 @@ public class GuiController implements Initializable {
     private InputEventListener eventListener;
 
     private Rectangle[][] rectangles;
+    private Rectangle[][] ghostRectangles;
 
     //Game Loop
     private Timeline timeLine;
@@ -224,6 +225,18 @@ public class GuiController implements Initializable {
             }
         }
 
+        ghostRectangles = new Rectangle[4][4];
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                Rectangle ghostRect = new Rectangle(BRICK_SIZE, BRICK_SIZE);
+                ghostRect.setFill(Color.TRANSPARENT);
+                ghostRect.setStroke(Color.TRANSPARENT);
+                ghostRect.setStrokeType(StrokeType.INSIDE);
+                ghostRectangles[i][j] = ghostRect;
+                gamePanel.add(ghostRect, j, 0);  // Will be repositioned later
+            }
+        }
+
         //Position the brick at the correct location on the board
 
         brickPanel.setLayoutX(gamePanel.getLayoutX() + (brick.getxPosition() * (BRICK_SIZE)));
@@ -275,6 +288,58 @@ public class GuiController implements Initializable {
         return returnPaint;
     }
 
+    private void refreshGhost(ViewData brick) {
+        if (ghostRectangles == null || brick == null) {
+            return;
+        }
+
+        int ghostY = brick.getGhostY();
+        int ghostX = brick.getGhostX();
+        int currentY = brick.getyPosition();
+        int[][] brickData = brick.getBrickData();
+
+        // Only show ghost if it's below the current brick position
+        boolean showGhost = (ghostY > currentY);
+
+        for (int i = 0; i < ghostRectangles.length; i++) {
+            for (int j = 0; j < ghostRectangles[i].length; j++) {
+                Rectangle ghostRect = ghostRectangles[i][j];
+
+                // Check if this cell is part of the brick shape
+                boolean isPartOfBrick = (i < brickData.length && j < brickData[i].length
+                        && brickData[i][j] != 0);
+
+                if (showGhost && isPartOfBrick) {
+                    // Calculate board position
+                    int boardRow = ghostY - 2 + i;
+                    int boardCol = ghostX + j;
+
+                    // Only show if within bounds
+                    if (boardRow >= 0 && boardRow < 23 && boardCol >= 0 && boardCol < 10) {
+                        Color base = (Color) getFillColor(brickData[i][j]);
+
+                        // Semi-transparent ghost effect
+                        ghostRect.setFill(base.deriveColor(0, 0.5, 1, 0.25));
+                        ghostRect.setStroke(base.deriveColor(0, 1, 0.8, 0.6));
+                        ghostRect.setStrokeWidth(2.0);
+
+                        // Position the ghost rectangle
+                        GridPane.setRowIndex(ghostRect, boardRow);
+                        GridPane.setColumnIndex(ghostRect, boardCol);
+                    } else {
+                        // Out of bounds - hide
+                        ghostRect.setFill(Color.TRANSPARENT);
+                        ghostRect.setStroke(Color.TRANSPARENT);
+                    }
+                } else {
+                    // Not showing ghost - hide this cell
+                    ghostRect.setFill(Color.TRANSPARENT);
+                    ghostRect.setStroke(Color.TRANSPARENT);
+                }
+            }
+        }
+    }
+
     //Update the visual position and appearance of the falling brick
     public void refreshBrick(ViewData brick) {
         if (isPause.getValue() == Boolean.FALSE) {
@@ -306,6 +371,7 @@ public class GuiController implements Initializable {
             if (brick.getHeldBrickData() != null) {
                 generateHoldBrickPreview(brick.getHeldBrickData());
             }
+            refreshGhost(brick);
         }
     }
 
