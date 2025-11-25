@@ -10,7 +10,7 @@ import javafx.scene.input.MouseEvent;
 
 public class MainMenu {
 
-    @FXML private StackPane root; // This must match fx:id="root" in FXML
+    @FXML private StackPane root;
     @FXML private ImageView logoImage;
     @FXML private VBox buttonContainer;
 

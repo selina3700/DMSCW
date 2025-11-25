@@ -4,12 +4,14 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 
 public class ControlsMenu {
 
-    @FXML private StackPane rootPane;
+    @FXML private StackPane rootPane;  // Changed from optionsMenuroot
 
+    private Pane parentMenu;
     private GuiController guiController;
     private ButtonSFX closeButton;
 
@@ -38,8 +40,17 @@ public class ControlsMenu {
     }
 
     private void closeMenu() {
-        if (guiController != null) {
-            guiController.showOptionsMenu();
+        if (rootPane != null && rootPane.getParent() instanceof javafx.scene.layout.Pane) {
+            ((javafx.scene.layout.Pane) rootPane.getParent()).getChildren().remove(rootPane);
         }
+        guiController.setCurrentControlsMenu(null);
+
+        if (parentMenu != null) {
+            parentMenu.setVisible(true);
+        }
+    }
+
+    public void setParentMenu(Pane parentMenu) {
+        this.parentMenu = parentMenu;
     }
 }

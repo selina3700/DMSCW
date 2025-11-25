@@ -7,7 +7,7 @@
 <?import java.net.URL?>
 
 <StackPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.comp2042.OptionsMenu"
-           maxWidth="Infinity" maxHeight="Infinity" styleClass="pause-root">
+           maxWidth="Infinity" maxHeight="Infinity" styleClass="root">
 
     <VBox alignment="CENTER" spacing="10" styleClass="buttons-container"
           prefHeight="498" prefWidth="402" maxHeight="498" maxWidth="402">

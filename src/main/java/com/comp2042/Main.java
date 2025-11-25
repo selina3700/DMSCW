@@ -34,7 +34,7 @@ public class Main extends Application {
         primaryStage.setMaximized(false);
         primaryStage.show();
 
-        guiController.onSceneLoaded();
+//        guiController.onSceneLoaded();
         guiController.showMainMenu();
     }
 

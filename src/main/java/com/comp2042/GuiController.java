@@ -76,7 +76,7 @@ public class GuiController implements Initializable {
     private final BooleanProperty isGameOver = new SimpleBooleanProperty();
 
     //BGM
-    private MediaPlayer bgmPlayer;
+    private BgmManager bgm;
 
     //SFX
     private AudioClip clearSoundPlayer;
@@ -173,6 +173,8 @@ public class GuiController implements Initializable {
         reflection.setTopOffset(-12);
 
         setupPauseButton();
+
+        bgm = new BgmManager("/sounds/bgm.mp3", "/sounds/gameOver.mp3");
     }
 
     public void initGameView(int[][] boardMatrix, ViewData brick, double initialSpeed) {
@@ -444,13 +446,14 @@ public class GuiController implements Initializable {
         setPauseButtonEnabled(false);
         isGameOver.setValue(Boolean.TRUE);
 
-        if (bgmPlayer != null) {
-            bgmPlayer.stop();
+        // Play game over music
+        if (bgm != null) {
+            bgm.stopCurrent();
+            bgm.playGameOverMusic();
         }
 
-        // Add gameOverPanel to root and make it fill the screen
+        // Show game over panel
         Pane root = (Pane) gamePanel.getScene().getRoot();
-
         if (!root.getChildren().contains(gameOverPanel)) {
             gameOverPanel.prefWidthProperty().bind(root.widthProperty());
             gameOverPanel.prefHeightProperty().bind(root.heightProperty());
@@ -460,6 +463,7 @@ public class GuiController implements Initializable {
         gameOverPanel.setGuiController(this);
         gameOverPanel.setVisible(true);
     }
+
 
     //Drops the brick immediately
     private void hardDrop() {
@@ -519,38 +523,28 @@ public class GuiController implements Initializable {
         setPauseButtonEnabled(true);
 
         // 5. Handle BGM - restart from beginning
-        if (bgmPlayer != null) {
-            bgmPlayer.stop();
-            bgmPlayer.seek(bgmPlayer.getStartTime());
-            bgmPlayer.play();
-        }
+        bgm.restart();
     }
 
     //Pause the game
     public void pauseGame(ActionEvent actionEvent) {
-        System.out.println("=== pauseGame() called, isPause=" + isPause.get() + " ===");
-
         if (isPause.get()) {
-            // Already paused, so resume
             resumeGame();
             hidePauseMenu();
+            bgm.playBgm(); // only via manager
         } else {
-            // Pause the game
             timeLine.pause();
             isPause.set(true);
-
-            // Pause BGM
-            if (bgmPlayer != null) {
-                System.out.println("Pausing BGM, status BEFORE: " + bgmPlayer.getStatus());
-                bgmPlayer.pause();
-                System.out.println("BGM status AFTER pause: " + bgmPlayer.getStatus());
-            } else {
-                System.out.println("ERROR: bgmPlayer is NULL!");
-            }
-
+            bgm.pause();  // pause via manager
             showPauseMenu();
         }
         gamePanel.requestFocus();
+    }
+
+    public void resumeGame() {
+        timeLine.play();
+        isPause.set(false);
+        bgm.playBgm();  // manager handles starting/resuming music
     }
 
     private void setupPauseButton() {
@@ -820,33 +814,6 @@ public class GuiController implements Initializable {
         return gamePanel;
     }
 
-
-    //Background Music
-    private void initializeBackgroundMusic() {
-        System.out.println("=== initializeBackgroundMusic() called ===");
-        try {
-            if (bgmPlayer != null) {
-                bgmPlayer.stop();
-                bgmPlayer.dispose();
-            }
-
-            String bgmPath = getClass().getResource("/sounds/bgm.mp3").toExternalForm();
-            System.out.println("BGM path: " + bgmPath);
-
-            Media sound = new Media(bgmPath);
-            bgmPlayer = new MediaPlayer(sound);
-            bgmPlayer.setCycleCount(MediaPlayer.INDEFINITE);
-            bgmPlayer.setVolume(0.5);
-            bgmPlayer.setMute(isMusicMuted);
-
-            System.out.println("bgmPlayer created successfully: " + (bgmPlayer != null));
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("ERROR loading background music: " + e.getMessage());
-        }
-    }
-
     public boolean isMusicMuted() {
         return isMusicMuted;
     }
@@ -855,135 +822,48 @@ public class GuiController implements Initializable {
         return isSFXMuted;
     }
 
-    public void setMusicMute(boolean mute) {
-        System.out.println("=== GuiController.setMusicMute(" + mute + ") ===");
-        this.isMusicMuted = mute;
-
-        if (bgmPlayer != null) {
-            System.out.println("bgmPlayer status BEFORE: " + bgmPlayer.getStatus());
-            System.out.println("bgmPlayer.isMute() BEFORE: " + bgmPlayer.isMute());
-
-            bgmPlayer.setMute(mute);
-
-            System.out.println("bgmPlayer.isMute() AFTER: " + bgmPlayer.isMute());
-            System.out.println("bgmPlayer status AFTER: " + bgmPlayer.getStatus());
-        } else {
-            System.out.println("ERROR: bgmPlayer is NULL!");
-        }
+    public void setMusicMuted(boolean mute) {
+        isMusicMuted = mute;
+        bgm.setMuted(mute);
     }
 
-    public void resumeGame() {
-        System.out.println("=== resumeGame() called ===");
+    public void showControlsMenuFromMenu(StackPane parentMenu) {
+        System.out.println("=== showControlsMenuFromMenu() called ===");
+        System.out.println("parentMenu is null? " + (parentMenu == null));
 
-        timeLine.play();
-        isPause.set(false);
-
-        // Resume BGM (setMute handles whether you hear it)
-        if (bgmPlayer != null) {
-            System.out.println("Resuming BGM, isMusicMuted=" + isMusicMuted);
-            bgmPlayer.play();
-            System.out.println("BGM status after play: " + bgmPlayer.getStatus());
-        } else {
-            System.out.println("ERROR: bgmPlayer is NULL in resumeGame!");
-        }
-    }
-
-    public void showControlsMenu() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/controlsMenu.fxml"));
-            Pane controlsPane = loader.load();
+            StackPane controlsPane = loader.load();
+            System.out.println("Controls FXML loaded successfully");
 
             ControlsMenu controller = loader.getController();
+            System.out.println("Controller obtained: " + (controller != null));
+
             controller.setGuiController(this);
+            controller.setParentMenu(parentMenu);
 
-            // Logic to find the correct root to overlay on (same as your OptionsMenu logic)
-            javafx.scene.Parent rootParent = null;
+            // Hide parent menu
+            parentMenu.setVisible(false);
+            System.out.println("Parent menu hidden");
 
-            // 1. Try gamePanel
-            if (gamePanel != null && gamePanel.getScene() != null) {
-                rootParent = gamePanel.getScene().getRoot();
-            }
+            Pane overlayParent = (Pane) parentMenu.getParent();
+            System.out.println("Overlay parent: " + (overlayParent != null ? overlayParent.getClass().getSimpleName() : "NULL"));
 
-            // 2. Try focused window
-            if (rootParent == null) {
-                for (Window window : Window.getWindows()) {
-                    if (window.isShowing() && window.isFocused() && window instanceof Stage) {
-                        Stage stage = (Stage) window;
-                        if (stage.getScene() != null) {
-                            rootParent = stage.getScene().getRoot();
-                            break;
-                        }
-                    }
-                }
-            }
-
-            // 3. Fallback
-            if (rootParent == null) {
-                System.out.println("Could not find root for Controls Menu");
-                return;
-            }
-
-            Pane overlayParent;
-            if (rootParent instanceof Pane) {
-                overlayParent = (Pane) rootParent;
-            } else {
-                StackPane wrapper = new StackPane();
-                wrapper.getChildren().add(rootParent);
-                Stage stage = (Stage) rootParent.getScene().getWindow();
-                stage.getScene().setRoot(wrapper);
-                overlayParent = wrapper;
-            }
-
-            // Bind size to fill screen
-            controlsPane.setPrefSize(overlayParent.getWidth(), overlayParent.getHeight());
             controlsPane.prefWidthProperty().bind(overlayParent.widthProperty());
             controlsPane.prefHeightProperty().bind(overlayParent.heightProperty());
 
             overlayParent.getChildren().add(controlsPane);
-            currentControlsMenu = controlsPane;
+            System.out.println("Controls pane added to scene");
 
+            setCurrentControlsMenu(controlsPane);
         } catch (Exception e) {
+            System.out.println("ERROR loading controls menu:");
             e.printStackTrace();
-            System.out.println("Error loading Controls menu: " + e.getMessage());
         }
     }
 
-    public void hideControlsMenu() {
-        if (currentControlsMenu != null && currentControlsMenu.getParent() instanceof Pane) {
-            ((Pane) currentControlsMenu.getParent()).getChildren().remove(currentControlsMenu);
-            currentControlsMenu = null;
-        }
-    }
-
-    public void onSceneLoaded() {
-        System.out.println("=== onSceneLoaded() called ===");
-        System.out.println("bgmPlayer is null BEFORE init? " + (bgmPlayer == null));
-
-        if (bgmPlayer == null) {
-            initializeBackgroundMusic();
-        }
-
-        System.out.println("bgmPlayer is null AFTER init? " + (bgmPlayer == null));
-
-        if (bgmPlayer != null) {
-            bgmPlayer.play();
-            System.out.println("BGM started playing, status: " + bgmPlayer.getStatus());
-        } else {
-            System.out.println("ERROR: bgmPlayer is STILL NULL after initialization!");
-        }
-    }
-
-    public void startBGM() {
-        if (bgmPlayer != null && !isMusicMuted) {
-            bgmPlayer.play();
-        }
-    }
-
-    // 7. Add a method to stop BGM completely (for cleanup)
-    public void stopBGM() {
-        if (bgmPlayer != null) {
-            bgmPlayer.stop();
-        }
+    public void setCurrentControlsMenu(Pane pane) {
+        currentControlsMenu = pane;
     }
 
     public GameOverPanel getGameOverPanel() {
@@ -1012,5 +892,7 @@ public class GuiController implements Initializable {
             e.printStackTrace();
         }
     }
+
+
 
 }

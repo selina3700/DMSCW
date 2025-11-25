@@ -6,6 +6,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.media.AudioClip;
@@ -19,6 +20,7 @@ public class OptionsMenu {
     private ButtonSFX mainMenuButtonRef;
     private ButtonSFX backButtonRef;
     private boolean openedFromGameOver = false;
+
 
     private boolean musicOn = true;
     private boolean sfxOn = true;
@@ -34,6 +36,7 @@ public class OptionsMenu {
     @FXML private ImageView logoImage;
     @FXML private VBox wideButtonContainer;
     @FXML private HBox iconButtonContainer;
+    @FXML private StackPane optionsMenuRoot;
 
     public void setGuiController(GuiController controller) {
         System.out.println("=== OptionsMenu.setGuiController() called ===");
@@ -189,16 +192,18 @@ public class OptionsMenu {
         System.out.println("=== toggleMusic() called ===");
         System.out.println("musicOn BEFORE: " + musicOn);
 
+        // Flip the state
         musicOn = !musicOn;
 
         System.out.println("musicOn AFTER: " + musicOn);
         System.out.println("guiController is null? " + (guiController == null));
 
         if (guiController != null) {
-            System.out.println("Calling guiController.setMusicMute(" + !musicOn + ")");
-            guiController.setMusicMute(!musicOn);
+            boolean mute = !musicOn; // when musicOn = false, mute = true
+            System.out.println("Calling guiController.setMusicMuted(" + mute + ")");
+            guiController.setMusicMuted(mute);
         } else {
-            System.out.println("ERROR: guiController is NULL - cannot mute music!");
+            System.out.println("ERROR: guiController is NULL - cannot toggle music!");
         }
 
         updateMusicButtonVisual();
@@ -215,9 +220,37 @@ public class OptionsMenu {
     }
 
     private void goToControls() {
-        if (guiController != null) {
-            guiController.hideOptionsMenu();
-            guiController.showControlsMenu();
+        System.out.println("=== goToControls() called ===");
+
+        if (guiController == null) {
+            System.out.println("ERROR: guiController is NULL");
+            return;
+        }
+
+        // Try to find the StackPane root
+        StackPane root = optionsMenuRoot;
+
+        // If optionsMenuRoot is null, traverse up to find it
+        if (root == null) {
+            System.out.println("optionsMenuRoot is null, searching for StackPane...");
+            javafx.scene.Parent current = wideButtonContainer.getParent();
+
+            while (current != null) {
+                System.out.println("Checking parent: " + current.getClass().getSimpleName());
+                if (current instanceof StackPane) {
+                    root = (StackPane) current;
+                    System.out.println("Found StackPane!");
+                    break;
+                }
+                current = current.getParent();
+            }
+        }
+
+        if (root != null) {
+            System.out.println("Opening controls menu with root: " + root.getClass().getSimpleName());
+            guiController.showControlsMenuFromMenu(root);
+        } else {
+            System.out.println("ERROR: Could not find StackPane root for Controls Menu");
         }
     }
 
