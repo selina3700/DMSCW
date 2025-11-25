@@ -23,4 +23,8 @@ final class OBrick implements Brick {
         return MatrixOperations.deepCopyList(brickMatrix);
     }
 
+    @Override
+    public Brick copy() {
+        return new OBrick();
+    }
 }
