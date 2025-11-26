@@ -28,8 +28,7 @@ import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
+
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.scene.media.AudioClip;
@@ -77,10 +76,13 @@ public class GuiController implements Initializable {
 
     //BGM
     private BgmManager bgm;
+    private boolean isMusicMuted = false;
 
     //SFX
     private AudioClip clearSoundPlayer;
     private ButtonSFX pauseButton;
+    private boolean isSFXMuted = false;
+    private BrickLandSFX brickLandSFX;
 
     //Outline
     private Color getDarker;
@@ -88,15 +90,15 @@ public class GuiController implements Initializable {
     private Pane currentOptionsMenu;
     private Pane currentControlsMenu;
 
-    private boolean isMusicMuted = false;
-    private boolean isSFXMuted = false;
     private boolean isMainMenuOpen = false;
+
+    private HardDropHandler hardDropHandler;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        Font.loadFont(getClass().getResourceAsStream("/PixelifySans.ttf"), 38);
-        Font font = Font.loadFont(getClass().getResourceAsStream("/PressStart.ttf"), 38);
+        Font.loadFont(getClass().getResourceAsStream("/font/PixelifySans.ttf"), 38);
+        Font font = Font.loadFont(getClass().getResourceAsStream("/font/PressStart.ttf"), 38);
 
         //Receive keyboard input & ensure grids have no gaps
         gamePanel.setPadding(Insets.EMPTY);
@@ -175,6 +177,7 @@ public class GuiController implements Initializable {
         setupPauseButton();
 
         bgm = new BgmManager("/sounds/bgm.mp3", "/sounds/gameOver.mp3");
+        brickLandSFX = new BrickLandSFX();
     }
 
     public void initGameView(int[][] boardMatrix, ViewData brick, double initialSpeed) {
@@ -410,6 +413,11 @@ public class GuiController implements Initializable {
                 notificationPanel.showScore(groupNotification.getChildren());
             }
 
+            // ADD THIS: Play land sound when brick doesn't move (locked in place)
+            if (!downData.isMoved() && brickLandSFX != null) {
+                brickLandSFX.playLandSound();
+            }
+
             //Update brick position
             refreshBrick(downData.getViewData());
         }
@@ -421,10 +429,11 @@ public class GuiController implements Initializable {
     //Connect GUI controller with the InputEventListener
     public void setEventListener(InputEventListener eventListener) {
         this.eventListener = eventListener;
+        this.hardDropHandler = new HardDropHandler(eventListener, this);
     }
 
     public void bindScore(IntegerProperty scoreProperty) {
-        Font font = Font.loadFont(getClass().getResourceAsStream("/digital.ttf"), 38);
+        Font font = Font.loadFont(getClass().getResourceAsStream("/font/digital.ttf"), 38);
         scoreLabel.getStyleClass().add("bindScoreStyle");
         scoreLabel.setFont(font);
         scoreLabel.textProperty().bind(scoreProperty.asString("Score: %d"));
@@ -467,35 +476,8 @@ public class GuiController implements Initializable {
 
     //Drops the brick immediately
     private void hardDrop() {
-        if (isPause.getValue() == Boolean.FALSE && isGameOver.getValue() == Boolean.FALSE) {
-            boolean canMoveDown = true;
-            MoveEvent downEvent = new MoveEvent(EventType.DOWN, EventSource.USER);
-            DownData downData = null;
-
-            // Drop until the brick can't move further
-            while (canMoveDown) {
-                downData = eventListener.onDownEvent(downEvent);
-                if (!downData.isMoved()) {
-                    canMoveDown = false;
-                }
-            }
-
-            // Update the view one last time (locked position)
-            if (downData != null) {
-                refreshBrick(downData.getViewData());
-
-                // Handle row clearing animation if needed
-                if (downData.getClearRow() != null && downData.getClearRow().getLinesRemoved() > 0) {
-                    if (clearSoundPlayer != null) {
-                        clearSoundPlayer.play();
-                    }
-                    NotificationPanel notificationPanel = new NotificationPanel("+" + downData.getClearRow().getScoreBonus());
-                    groupNotification.getChildren().add(notificationPanel);
-                    notificationPanel.showScore(groupNotification.getChildren());
-                }
-            }
-
-            // Keep focus so keys continue to work
+        if (hardDropHandler != null) {
+            hardDropHandler.execute(isPause.getValue(), isGameOver.getValue());
             gamePanel.requestFocus();
         }
     }
@@ -582,6 +564,12 @@ public class GuiController implements Initializable {
         // Update pause button SFX state
         if (pauseButton != null) {
             pauseButton.setSFXMuted(mute);
+        }
+        if (hardDropHandler != null) {
+            hardDropHandler.setSFXMuted(mute);
+        }
+        if (brickLandSFX != null) {
+            brickLandSFX.setMuted(mute);
         }
     }
 
@@ -893,6 +881,8 @@ public class GuiController implements Initializable {
         }
     }
 
-
-
+    public void showNotification(NotificationPanel notificationPanel) {
+        groupNotification.getChildren().add(notificationPanel);
+        notificationPanel.showScore(groupNotification.getChildren());
+    }
 }

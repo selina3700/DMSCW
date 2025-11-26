@@ -80,7 +80,7 @@ public class OptionsMenu {
         // ---------------------------------------------------------
 
         // We still need to load the font once so JavaFX knows it exists for the CSS to use it
-        Font.loadFont(getClass().getResourceAsStream("/PixelifySans.ttf"), 28);
+        Font.loadFont(getClass().getResourceAsStream("/font/PixelifySans.ttf"), 28);
 
         // Create Labels and apply CSS class
         Label musicLabel = new Label("Music");
