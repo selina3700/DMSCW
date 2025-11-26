@@ -6,7 +6,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import java.net.URL?>
 
-<StackPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.comp2042.PauseMenu"
+<StackPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.comp2042.menu.PauseMenu"
            maxWidth="Infinity" maxHeight="Infinity" styleClass="root">
 
     <VBox alignment="CENTER" spacing="10" styleClass="buttons-container"
