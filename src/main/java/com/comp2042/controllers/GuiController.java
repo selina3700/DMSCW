@@ -134,6 +134,7 @@ public class GuiController implements Initializable {
 
         brickRenderer = new BrickRenderer(gamePanel, brickPanel, isPause);
 
+
         menuManager = new MenuManager(this);
 
         // GameStateManager will be initialized after timeLine is created

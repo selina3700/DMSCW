@@ -70,20 +70,12 @@ public class GhostPiece {
     }
 
     /**
-     * Updates the visual display of the ghost piece
-     * @param brickData The current brick's data
-     * @param currentY The current Y position of the brick
-     * @param colorProvider A functional interface to get colors for brick pieces
+     * UPDATED: Now accepts ghostX and ghostY directly from external source (ViewData)
      */
-    public void refresh(int[][] brickData, int currentY, ColorProvider colorProvider) {
+    public void refresh(int[][] brickData, int currentY, int ghostX, int ghostY, ColorProvider colorProvider) {
         if (ghostRectangles == null || brickData == null) {
             return;
         }
-
-        int ghostY = ghostPosition.y;
-        int ghostX = ghostPosition.x;
-
-        // Only show ghost if it's below the current brick position
         boolean showGhost = (ghostY > currentY);
 
         for (int i = 0; i < ghostRectangles.length; i++) {
@@ -95,26 +87,18 @@ public class GhostPiece {
                         && brickData[i][j] != 0);
 
                 if (showGhost && isPartOfBrick) {
-                    // Calculate board position
                     int boardRow = ghostY - 2 + i;
                     int boardCol = ghostX + j;
 
-                    // Only show if within bounds
                     if (boardRow >= 0 && boardRow < 23 && boardCol >= 0 && boardCol < 10) {
                         Color baseColor = colorProvider.getColor(brickData[i][j]);
-
-                        // Apply ghost styling: semi-transparent with outlined border
                         applyGhostStyle(ghostRect, baseColor);
-
-                        // Position the ghost rectangle
                         GridPane.setRowIndex(ghostRect, boardRow);
                         GridPane.setColumnIndex(ghostRect, boardCol);
                     } else {
-                        // Out of bounds - hide
                         hideRectangle(ghostRect);
                     }
                 } else {
-                    // Not showing ghost - hide this cell
                     hideRectangle(ghostRect);
                 }
             }

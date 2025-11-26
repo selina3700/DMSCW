@@ -135,8 +135,14 @@ public class BrickRenderer {
 
             // Update ghost piece
             if (ghostPiece != null) {
-                ghostPiece.refresh(brick.getBrickData(), brick.getyPosition(),
-                        colorCode -> (Color) getFillColor(colorCode));
+                ghostPiece.refresh(
+                        brick.getBrickData(),
+                        brick.getyPosition(),
+                        brick.getxPosition(),
+                        brick.getGhostY(),
+
+                        colorCode -> getFillColor(colorCode)
+                );
             }
         }
     }
