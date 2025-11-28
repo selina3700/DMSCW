@@ -347,6 +347,12 @@ public class GuiController implements Initializable {
         return isSFXMuted;
     }
 
+    public void startBgm() {
+        if (bgm != null && !isMusicMuted) {
+            bgm.playBgm();
+        }
+    }
+
     // ==================== GAME SPEED ====================
 
     public void setGameSpeed(double newSpeed) {

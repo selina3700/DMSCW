@@ -44,10 +44,6 @@ public class Main extends Application {
         guiController.showMainMenu();
     }
 
-    public static void startGame() throws IOException {
-        startGame(1);
-    }
-
     public static void startGame(int level) throws IOException {
         currentLevel = level;
 

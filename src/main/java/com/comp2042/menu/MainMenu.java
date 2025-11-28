@@ -81,6 +81,10 @@ public class MainMenu {
     private void startGame() {
         try {
             Main.startGame(selectedLevel);
+            GuiController newController = Main.getGuiController();
+            if (newController != null) {
+                newController.startBgm();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
