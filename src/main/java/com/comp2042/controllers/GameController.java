@@ -11,14 +11,18 @@ import com.comp2042.models.ViewData;
 
 public class GameController implements InputEventListener {
 
-    private int level = 1;
+    private int level;
+    private int startingLevel;
     private int LinesCleared = 0;
     private Board board = new SimpleBoard(25, 10);
     private final GuiController viewGuiController;
+    private static final double BASE_SPEED = 400;
 
-    public GameController(GuiController c) {
+    public GameController(GuiController c, int initialLevel) {
         viewGuiController = c;
 
+        this.startingLevel = initialLevel;
+        this.level = initialLevel;
         // Start game with an initial brick
         board.createNewBrick();
 
@@ -26,7 +30,7 @@ public class GameController implements InputEventListener {
         viewGuiController.setEventListener(this);
 
         // Calculate initial speed based on starting level
-        double initialSpeed = Math.max(100, 400 - (level - 1) * 20);
+        double initialSpeed = calculateSpeed(level);
 
         // Initial board and brick with speed
         viewGuiController.initGameView(board.getBoardMatrix(), board.getViewData(), initialSpeed);
@@ -37,8 +41,10 @@ public class GameController implements InputEventListener {
         // Update GUI labels
         viewGuiController.setLevel(level);
         viewGuiController.setLinesCleared(LinesCleared);
+    }
 
-        System.out.println("Starting at Level " + level + " - Speed: " + initialSpeed + "ms");
+    private double calculateSpeed(int currentLevel) {
+        return Math.max(100, BASE_SPEED - (currentLevel - 1) * 20);
     }
 
     private void increaseGameSpeed() {
@@ -102,12 +108,15 @@ public class GameController implements InputEventListener {
     @Override
     public void createNewGame() {
         board.newGame();
-        level = 1;
+        level = startingLevel;
         LinesCleared = 0;
         viewGuiController.setLevel(level);
         viewGuiController.setLinesCleared(LinesCleared);
         viewGuiController.refreshGameBackground(board.getBoardMatrix());
-        viewGuiController.setGameSpeed(400);
+
+        //Adjust Speed based on Level
+        double resetSpeed = calculateSpeed(level);
+        viewGuiController.setGameSpeed(resetSpeed);
     }
 
     @Override

@@ -11,6 +11,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.input.MouseEvent;
 
+import java.io.IOException;
+
 public class MainMenu {
 
     @FXML private StackPane root;
@@ -19,6 +21,8 @@ public class MainMenu {
 
     private Stage primaryStage;
     private GuiController guiController;
+    private LevelSelectorButton levelSelector;
+    private int selectedLevel = 1;
 
     public void setPrimaryStage(Stage stage) {
         this.primaryStage = stage;
@@ -31,20 +35,24 @@ public class MainMenu {
 
     @FXML
     private void initialize() {
-        try {
-            logoImage.setImage(new Image(getClass().getResource("/images/Tetris.png").toExternalForm()));
-        } catch (Exception e) {
-            System.out.println("Logo not found");
-        }
+        logoImage.setImage(new Image(getClass().getResource("/images/Tetris.png").toExternalForm()));
         createButtons();
     }
 
     private void createButtons() {
         ButtonSFX startBtn = createButton("/images/Start_Button.png", "/images/Start_After.png", this::startGame);
+
+        // Create level selector button
+        levelSelector = new LevelSelectorButton();
+        levelSelector.setOnLevelChange(level -> selectedLevel = level);
+        if (guiController != null) {
+            levelSelector.setSFXMuted(guiController.isSFXMuted());
+        }
+
         ButtonSFX optionsBtn = createButton("/images/Options Button.png", "/images/Options_After_Button.png", this::optionsMenu);
         ButtonSFX quitBtn = createButton("/images/Quit Button.png", "/images/Quit_After.png", this::quitGame);
 
-        buttonContainer.getChildren().addAll(startBtn, optionsBtn, quitBtn);
+        buttonContainer.getChildren().addAll(startBtn, levelSelector, optionsBtn, quitBtn);
     }
 
     private void syncButtonStates() {
@@ -53,6 +61,8 @@ public class MainMenu {
         for (javafx.scene.Node node : buttonContainer.getChildren()) {
             if (node instanceof ButtonSFX) {
                 ((ButtonSFX) node).setSFXMuted(isMuted);
+            } else if (node instanceof LevelSelectorButton) {
+                ((LevelSelectorButton) node).setSFXMuted(isMuted);
             }
         }
     }
@@ -69,7 +79,11 @@ public class MainMenu {
     }
 
     private void startGame() {
-        Main.startGame();
+        try {
+            Main.startGame(selectedLevel);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void quitGame() {
@@ -80,5 +94,9 @@ public class MainMenu {
         if (guiController != null) {
             guiController.showOptionsMenu(root);
         }
+    }
+
+    public int getSelectedLevel() {
+        return selectedLevel;
     }
 }

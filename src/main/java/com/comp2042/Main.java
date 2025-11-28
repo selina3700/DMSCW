@@ -7,6 +7,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+
+import java.io.IOException;
 import java.net.URL;
 
 public class Main extends Application {
@@ -15,6 +17,8 @@ public class Main extends Application {
     private static Scene scene;
     private static GuiController guiController;
     private static Parent gameRoot;
+    private static int currentLevel = 1;
+    private static GameController gameController;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -25,7 +29,7 @@ public class Main extends Application {
         gameRoot = loader.load();
 
         guiController = loader.getController();
-        new GameController(guiController);
+        gameController = new GameController(guiController, currentLevel);
 
         scene = new Scene(gameRoot, 450, 550);
         scene.getStylesheets().add(getClass().getResource("/window_style.css").toExternalForm());
@@ -40,9 +44,21 @@ public class Main extends Application {
         guiController.showMainMenu();
     }
 
-    public static void startGame() {
+    public static void startGame() throws IOException {
+        startGame(1);
+    }
+
+    public static void startGame(int level) throws IOException {
+        currentLevel = level;
+
+        // Reload the FXML to get a fresh GuiController
+        URL location = Main.class.getResource("/gameLayout.fxml");
+        FXMLLoader loader = new FXMLLoader(location);
+        gameRoot = loader.load();
+        guiController = loader.getController();
+        gameController = new GameController(guiController, currentLevel);
+
         scene.setRoot(gameRoot);
-        guiController.newGame(null);
     }
 
     public static GuiController getGuiController() {

@@ -10,12 +10,12 @@
            fx:controller="com.comp2042.menu.MainMenu"
            fx:id="root">
 
-    <VBox alignment="CENTER" spacing="20" styleClass="buttons-container"
+    <VBox alignment="CENTER" spacing="10" styleClass="buttons-container"
           prefHeight="498" prefWidth="402" maxHeight="498" maxWidth="402">
 
-        <ImageView fx:id="logoImage" fitWidth="346" fitHeight="219" preserveRatio="true" />
+        <ImageView fx:id="logoImage" fitWidth="326" fitHeight="199" preserveRatio="true" />
 
-        <VBox fx:id="buttonContainer" alignment="CENTER" spacing="20" />
+        <VBox fx:id="buttonContainer" alignment="CENTER" spacing="10" />
 
     </VBox>
 

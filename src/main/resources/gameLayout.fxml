@@ -33,7 +33,8 @@
     <VBox fx:id="leftPanel" layoutX="-2" layoutY="10">
         <!-- Score label -->
         <Label fx:id="scoreLabel" text="Score: 0"
-               styleClass="bindScoreStyle"
+               styleClass="bindScoreStyle" minWidth="120" minHeight="30"
+               maxWidth="120" maxHeight="30"
         />
 
         <!-- Level Label -->
