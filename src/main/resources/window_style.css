@@ -1,9 +1,9 @@
 .root {
-    -fx-background-image: url("Background.png");
-        -fx-background-size: cover;
-        -fx-background-repeat: no-repeat;
-        -fx-background-position: center;
-        -fx-background-color: #191B43;
+    -fx-background-image: url("/images/Background.png");
+    -fx-background-size: cover;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-background-color: #191B43;
 }
 
 .gameBoard {
@@ -19,10 +19,6 @@
     -fx-padding: 20px 0 0 0;
     -fx-font-size: 23px;
     -fx-text-fill: white;
-}
-
-.rectangleStyle {
-    -fx-fill: linear-gradient(from 41px 34px to 50px 50px, reflect, #ff7f50 30%, #faebd7 47%);
 }
 
 .vbox {
@@ -42,23 +38,17 @@
     -fx-font-family: "Press Start 2P", system-ui;
 }
 
-.gameOverStyle {
-    -fx-font-family: "Let's go Digital";
-    -fx-font-size: 48;
-    -fx-background-color: red;
-}
-
 .bindScoreStyle {
     -fx-font-family: "Pixelify Sans", sans-serif;
     -fx-font-style: normal;
-    -fx-font-size: 23px;
+    -fx-font-size: 20px;
     -fx-text-fill: white;
 }
 
 .scoreClass{
     -fx-font-family: "Pixelify Sans", sans-serif;
     -fx-font-style: normal;
-    -fx-font-size: 23px;
+    -fx-font-size: 20px;
     -fx-text-fill: white;
 }
 
@@ -70,5 +60,5 @@
 }
 
 #leftPanel{
-    -fx-padding: 10 10 30 10;
+    -fx-padding: 10 5 30 10;
 }

@@ -18,7 +18,7 @@ public class ButtonSFX extends ImageView {
             this.hoverImg = new Image(getClass().getResource(hoverPath).toExternalForm());
 
             // Setup Sound
-            String soundPath = getClass().getResource("/buttonClick.mp3").toExternalForm();
+            String soundPath = getClass().getResource("/sounds/buttonClick.mp3").toExternalForm();
             this.clickSound = new AudioClip(soundPath);
 
         } catch (Exception e) {

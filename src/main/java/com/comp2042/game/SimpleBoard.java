@@ -97,9 +97,6 @@ public class SimpleBoard implements Board {
         currentBrick = brickGenerator.getBrick();
         brickRotator.setBrick(currentBrick);
         hasHeldThisTurn = false;
-
-        // Spawn at y=2 so the brick appears at the top of the VISIBLE board
-        // (The renderer uses yPosition-2, so y=2 renders at row 0)
         currentOffset = new Point(3, 1);
 
         return MatrixOperations.intersect(currentGameMatrix, brickRotator.getCurrentShape(),

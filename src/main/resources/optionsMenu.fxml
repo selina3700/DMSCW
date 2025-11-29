@@ -9,11 +9,11 @@
 <StackPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.comp2042.menu.OptionsMenu"
            maxWidth="Infinity" maxHeight="Infinity" styleClass="root">
 
-    <VBox alignment="CENTER" spacing="10" styleClass="buttons-container"
+    <VBox alignment="CENTER" spacing="20" styleClass="buttons-container"
           prefHeight="498" prefWidth="402" maxHeight="498" maxWidth="402">
 
-        <ImageView fx:id="logoImage" fitWidth="346" fitHeight="219" preserveRatio="true" />
-        <HBox fx:id="iconButtonContainer" alignment="CENTER" spacing="20" style="-fx-padding: 10 0 0 0;" />
+        <ImageView fx:id="logoImage" fitWidth="346" fitHeight="219" preserveRatio="true"/>
+        <HBox fx:id="iconButtonContainer" alignment="CENTER" spacing="20"/>
         <VBox fx:id="wideButtonContainer" alignment="CENTER" spacing="10" />
 
     </VBox>

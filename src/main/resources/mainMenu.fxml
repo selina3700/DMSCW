@@ -11,11 +11,11 @@
            fx:id="root">
 
     <VBox alignment="CENTER" spacing="10" styleClass="buttons-container"
-          prefHeight="498" prefWidth="402" maxHeight="498" maxWidth="402">
+          prefHeight="515" prefWidth="415" maxHeight="515" maxWidth="415">
 
-        <ImageView fx:id="logoImage" fitWidth="326" fitHeight="199" preserveRatio="true" />
+        <ImageView fx:id="logoImage" fitWidth="346" fitHeight="219" preserveRatio="true" />
 
-        <VBox fx:id="buttonContainer" alignment="CENTER" spacing="10" />
+        <VBox fx:id="buttonContainer" alignment="CENTER" spacing="9" />
 
     </VBox>
 
