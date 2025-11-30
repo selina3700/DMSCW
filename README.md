@@ -91,7 +91,6 @@ placing a block) was successful as well as creating a more engaging and immersiv
 
 **Benefit:** Keeps the randomization consistent and eliminates the chance of extreme good or bad luck sequences.
 
-
 ****
 ## Implemented but Not Working Properly
 

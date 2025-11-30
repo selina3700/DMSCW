@@ -353,6 +353,12 @@ public class GuiController implements Initializable {
         }
     }
 
+    public void stopBgm() {
+        if (bgm != null) {
+            bgm.stopCurrent();
+        }
+    }
+
     // ==================== GAME SPEED ====================
 
     public void setGameSpeed(double newSpeed) {

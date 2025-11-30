@@ -9,25 +9,26 @@ public class BgmManager {
     private MediaPlayer bgmPlayer;
     private MediaPlayer gameOverPlayer;
     private boolean muted = false;
+    private String bgmPath;
 
     public BgmManager(String bgmPath, String gameOverPath) {
+        this.bgmPath = bgmPath;
+
         bgmPlayer = new MediaPlayer(new Media(getClass().getResource(bgmPath).toExternalForm()));
         bgmPlayer.setCycleCount(MediaPlayer.INDEFINITE);
 
         gameOverPlayer = new MediaPlayer(new Media(getClass().getResource(gameOverPath).toExternalForm()));
-        gameOverPlayer.setCycleCount(1); // play once
+        gameOverPlayer.setCycleCount(1);
     }
+
 
     /**
      * Plays BGM from the beginning (used for new game)
      */
     public void playBgm() {
-        stopCurrent();
-        if (!muted) {
-            currentPlayer = bgmPlayer;
-            currentPlayer.play();
-        }
+        restart();
     }
+
 
     /**
      * Resumes BGM from where it was paused (used for unpause)
@@ -62,8 +63,19 @@ public class BgmManager {
      * Restarts BGM from the beginning (used for new game)
      */
     public void restart() {
-        playBgm();
+        stopCurrent();
+
+        // Create a NEW MediaPlayer to avoid broken pause state
+        bgmPlayer = new MediaPlayer(new Media(getClass().getResource(bgmPath).toExternalForm()));
+        bgmPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+
+        // preserve mute
+        bgmPlayer.setMute(muted);
+
+        currentPlayer = bgmPlayer;
+        currentPlayer.play();
     }
+
 
     /**
      * Pauses the current music (preserves position)

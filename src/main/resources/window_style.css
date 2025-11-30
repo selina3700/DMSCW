@@ -41,14 +41,14 @@
 .bindScoreStyle {
     -fx-font-family: "Pixelify Sans", sans-serif;
     -fx-font-style: normal;
-    -fx-font-size: 20px;
+    -fx-font-size: 23px;
     -fx-text-fill: white;
 }
 
 .scoreClass{
     -fx-font-family: "Pixelify Sans", sans-serif;
     -fx-font-style: normal;
-    -fx-font-size: 20px;
+    -fx-font-size: 23px;
     -fx-text-fill: white;
 }
 

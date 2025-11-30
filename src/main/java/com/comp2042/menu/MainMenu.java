@@ -11,6 +11,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.input.MouseEvent;
 
+import java.awt.image.PixelGrabber;
 import java.io.IOException;
 
 public class MainMenu {
@@ -80,11 +81,20 @@ public class MainMenu {
 
     private void startGame() {
         try {
+            // stop current menu BGM
+            if (guiController != null) {
+                guiController.stopBgm();
+            }
+
+            // start game
             Main.startGame(selectedLevel);
+
+            // start new BGM from the game controller
             GuiController newController = Main.getGuiController();
             if (newController != null) {
                 newController.startBgm();
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
