@@ -45,10 +45,6 @@ public class ViewData {
     }
 
     // Ghost piece getters
-    public int getGhostX() {
-        return ghostX;
-    }
-
     public int getGhostY() {
         return ghostY;
     }

@@ -2,6 +2,7 @@ package com.comp2042.menu;
 
 import com.comp2042.controllers.GuiController;
 import com.comp2042.Main;
+import com.comp2042.models.LevelSelectorButton;
 import com.comp2042.sounds.ButtonSFX;
 import javafx.fxml.FXML;
 import javafx.scene.image.Image;
@@ -11,7 +12,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.input.MouseEvent;
 
-import java.awt.image.PixelGrabber;
 import java.io.IOException;
 
 public class MainMenu {

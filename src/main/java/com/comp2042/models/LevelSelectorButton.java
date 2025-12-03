@@ -1,4 +1,4 @@
-package com.comp2042.menu;
+package com.comp2042.models;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
