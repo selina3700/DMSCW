@@ -36,6 +36,11 @@ This command removes any previous build artifacts and compiles the Java source f
 download necessary dependencies, run tests, and package the application into a runnable file.
 
 ### **3. Running the Application**
+
+`mvn javafx:run`
+
+This command executes the application without needing to manually locate or configure the final `.jar` file.
+
 ****
 ## Implemented and Working Properly
 This section explains all the features that has been implemented into the game.
@@ -90,14 +95,130 @@ placing a block) was successful as well as creating a more engaging and immersiv
 **Functionality:** A system that guarantees a player receives each of the 7 pieces within a set of seven pieces.
 
 **Benefit:** Keeps the randomization consistent and eliminates the chance of extreme good or bad luck sequences.
-
 ****
-## Implemented but Not Working Properly
-
 ## Features not Implemented
+### Feature 1: Combo System and Back-to-Back Bonuses
+**Description:** The game doesn't currently track sequential line clears and award special bonuses for them.
 
+**Goal:** Implement logic to award additional points for consecutive clears.
+
+### Feature 2: Multiplayer Implementation
+**Description:** The current game mode is single-player. Features such as a leaderboard can be implemented to enourage
+competitive gameplay.
+
+**Goal:** Develop a leaderboard that is updated whenever someone beats the current highest scorer.
+****
 ## New Java Classes
+### Handlers
+| **Class Name**        | **Description**                                                                                                              |   
+|-----------------------|------------------------------------------------------------------------------------------------------------------------------|
+| `HardDropHandler`     | Manages the instant downward movement of the brick and locking it at the bottom of the board when the [SPACEBAR] is pressed. |
+| `MoveDownHandler`     | Controls the standard downward soft drop vertical movement of the falling brick.                                             |
+| `KeyboardInputHandler`| Maps key presses to game actions.                                                                                            |
 
+### Managers
+| **Class Name**       | **Description**                                                      |
+|------------------|----------------------------------------------------------------------|
+| `BgmManager`       | Controls the playback, looping and volume of the background music.   |
+| `GameStateManager` | Central class for tracking and switching between game states.        |
+| `MenuManager` | Manages which menu is currently being displayed and menu navigation. |
+
+### Menu
+
+| **Class Name**  | **Description**                                                                                           |
+|-----------------|-----------------------------------------------------------------------------------------------------------|
+| `ControlsMenu`  | Displays the controls of the game. (e.g. "N" starts a new game)                                           |
+| `MainMenu`      | The entry page for the user, allowing the user to start the game, open the options menu or quit the game. |
+| `OptionsMenu`   | Allows users to adjust the setting such as muting and unmuting the BGM and SFX.                           |
+| `PauseMenu`     | The menu displayed when the game is paused.                                                               |
+
+### Models
+
+| **Class Name**        | **Description**                                                           |
+|-----------------------|---------------------------------------------------------------------------|
+| `ClearRow`            | Logic representing a completed row on the board that needs to be cleared. |
+| `DownData`            | Handles data relating to the brick's downward movement.                   |
+| `LevelSelectorButton` | Starting the game at different level speeds.                              |
+
+### Rendering
+
+| **Class Name**  | **Description**                                                               |
+|-----------------|-------------------------------------------------------------------------------|
+| `BrickPreview`  | Renders the visual display of the next piece in the queue and the hold brick. |
+| `BrickRenderer` | Renders the active falling brick and the static placed blocks on the main game board. |
+| `GhostPiece`    | Renders the transparent outline of the piece's projected landing spot.        |
+
+### Sounds
+
+| **Class Name** | **Decription**                                               |
+|----------------|--------------------------------------------------------------|
+| `BrickLandSFX` | Plays the sound effect when a falling brick locks into place. |
+| `ButtonSFX`    | Plays the sound effect when a buttons are clicked.           |
+| `ClearLineSFX` | Plays the sound effect when one or more lines are cleared.                                                             |
+****
 ## Modified Java Classes
+### Controllers
+**GameController**
 
+- Level and Speed System Added: Introduced level progression, starting level selection, and automatic speed
+scaling/levelling up based on cleared lines.
+- Line Tracking: Added `LinesCleared` counter to track total cleared lines.
+- Dynamic Game Speed Adjustments: Game speed increases when the player levels up, making the game faster.
+- Hold Mechanic: Implemented `onHoldEvent()` to allow storing and swapping of bricks.
+
+**GuiController**
+
+- Refactored into a more modular architecture
+- Added proper game systems
+- Complete audio system added
+- Better UI Organization
+
+### Game
+**MatrixOperations**
+
+- Coordinate system and bound checking fixed
+
+**SimpleBoard**
+
+- Hold Piece System
+- Ghost Piece Logic
+- Adjusted Brick Spawn Position
+- isValidPosition() Utility Method
+
+### Menu
+**GameOverPanel**
+
+- Uses an image-based UI
+- Added buttons for navigation such as restart, main menu, quit and options
+- Layout is responsive
+
+### Models
+**ClearRow**
+
+- Updated with a cleaner structure
+
+**DownData**
+
+- Improved game logic clarity by bundling movement state together with `ClearRow` and `ViewData`
+
+**ViewData**
+
+- Added support for held bricks and ghost piece
+
+### Main
+- Added static fields for stage, scene, controller, root, current level, and game controller.
+- Scene updated
+- Added restart to start a new game dynamically
+- Startup logic updated
+****
 ## Unexpected Problems
+**Time Management**
+
+Juggling the implementation schedule for this project while simultaneous deadlines for other assignments and club
+commitments led to conflicts and stress.
+- Solution: Clearly segment tasks to ensure dedicated focus on high-priority tasks.
+
+**Grid Alignment**
+
+Falling bricks didn't align with the background grid lines, causing visual gaps and slight overlaps as pieces moved.
+- Solution: Standardizes the cell size across both the logic and rendering engine.
