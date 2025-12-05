@@ -13,7 +13,10 @@ import javafx.stage.Window;
 
 /**
  * Manages all menu overlays and transitions in the game.
- * Handles showing/hiding pause menu, main menu, options menu, and controls menu.
+ * <p>
+ *     This class handles loading and displaying of all primary game menus such as
+ *     pause menu, main menu, options menu, and controls menu.
+ * </p>
  */
 public class MenuManager {
 
@@ -37,7 +40,6 @@ public class MenuManager {
         this.guiController = guiController;
     }
 
-    // ==================== PAUSE MENU ====================
 
     /**
      * Shows the pause menu overlay
@@ -73,8 +75,6 @@ public class MenuManager {
             pauseMenu = null;
         }
     }
-
-    // ==================== MAIN MENU ====================
 
     /**
      * Shows the main menu by replacing the scene root
@@ -116,8 +116,6 @@ public class MenuManager {
         return isMainMenuOpen;
     }
 
-    // ==================== OPTIONS MENU ====================
-
     /**
      * Shows the options menu overlay (auto-detects parent)
      */
@@ -138,7 +136,6 @@ public class MenuManager {
             OptionsMenu controller = loader.getController();
             controller.setGuiController(guiController);
 
-            // Determine the parent root
             javafx.scene.Parent rootParent = specificRoot;
 
             if (rootParent == null) {
@@ -203,8 +200,6 @@ public class MenuManager {
         }
     }
 
-    // ==================== CONTROLS MENU ====================
-
     /**
      * Shows controls menu from another menu (like pause or main menu)
      *
@@ -252,21 +247,16 @@ public class MenuManager {
         currentControlsMenu = pane;
     }
 
-    // ==================== HELPER METHODS ====================
-
     /**
      * Finds the currently active root pane
      */
     private javafx.scene.Parent findActiveRoot() {
-        // A. Is Main Menu currently open? Use that reference.
         if (mainMenu != null && mainMenu.getScene() != null) {
             return mainMenu;
         }
-        // B. Try Game Panel
         else if (guiController.getGamePanel() != null && guiController.getGamePanel().getScene() != null) {
             return guiController.getGamePanel().getScene().getRoot();
         }
-        // C. Fallback: Find the active Window
         else {
             for (Window window : Window.getWindows()) {
                 if (window.isShowing() && window instanceof Stage) {
@@ -287,14 +277,11 @@ public class MenuManager {
         if (rootParent instanceof Pane) {
             return (Pane) rootParent;
         } else {
-            // Wrap if the root isn't a Pane (rare, but safe)
             StackPane wrapper = new StackPane(rootParent);
             rootParent.getScene().setRoot(wrapper);
             return wrapper;
         }
     }
-
-    // ==================== GETTERS ====================
 
     public StackPane getMainMenu() {
         return mainMenu;

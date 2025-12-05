@@ -61,7 +61,7 @@ public class GameStateManager {
         if (isPause.get()) {
             resumeGame();
             menuManager.hidePauseMenu();
-            bgm.resume();  // CHANGED: Use resume() instead of playBgm()
+            bgm.resume();
         } else {
             timeLine.pause();
             isPause.set(true);
@@ -77,9 +77,9 @@ public class GameStateManager {
     public void resumeGame() {
         timeLine.play();
         isPause.set(false);
-        bgm.resume();  // CHANGED: Use resume() instead of playBgm()
-        menuManager.hidePauseMenu();  // Hide the pause menu when resuming
-        gamePanel.requestFocus();  // Refocus the game panel
+        bgm.resume();
+        menuManager.hidePauseMenu();
+        gamePanel.requestFocus();
     }
 
     /**
@@ -112,16 +112,13 @@ public class GameStateManager {
      * Resets the board and starts a new game
      */
     public void newGame(ActionEvent actionEvent) {
-        // 1. Swap Root back to GamePanel if needed
         StackPane mainMenu = menuManager.getMainMenu();
         if (gamePanel.getScene() == null && mainMenu != null && mainMenu.getScene() != null) {
             mainMenu.getScene().setRoot(gamePanel);
         }
 
-        // 2. Reset state
         menuManager.hideMainMenu();
 
-        // 3. Standard reset logic
         timeLine.stop();
         gameOverPanel.setVisible(false);
         eventListener.createNewGame();
@@ -130,10 +127,8 @@ public class GameStateManager {
         isPause.setValue(Boolean.FALSE);
         isGameOver.setValue(Boolean.FALSE);
 
-        // 4. RE-ENABLE the pause button
         setPauseButtonEnabled(true);
 
-        // 5. Handle BGM - restart from beginning
         bgm.restart();
     }
 
@@ -148,23 +143,9 @@ public class GameStateManager {
     }
 
     /**
-     * Sets the pause button reference (called during initialization)
+     * Sets the pause button reference
      */
     public void setPauseButton(ButtonSFX pauseButton) {
         this.pauseButton = pauseButton;
-    }
-
-    /**
-     * Returns the current pause state
-     */
-    public boolean isPaused() {
-        return isPause.get();
-    }
-
-    /**
-     * Returns the current game over state
-     */
-    public boolean isGameOver() {
-        return isGameOver.get();
     }
 }

@@ -12,39 +12,22 @@ import javafx.scene.Group;
 
 /**
  * Handles the logic for moving bricks down in the Tetris game.
- * Manages sound effects, score notifications, and brick position updates.
+ * Manages sound effects, score notifications, and brick position updates when moving down.
  */
-public class MoveDownHandler {
-
-    private final InputEventListener eventListener;
-    private final GuiController guiController;
-    private final BooleanProperty isPause;
-    private final ClearLineSFX clearLineSFX;
-    private final BrickLandSFX brickLandSFX;
-    private final Group groupNotification;
+public record MoveDownHandler(InputEventListener eventListener, GuiController guiController, BooleanProperty isPause,
+                              ClearLineSFX clearLineSFX, BrickLandSFX brickLandSFX, Group groupNotification) {
 
     /**
      * Constructor for MoveDownHandler
      *
-     * @param eventListener The event listener for game logic
-     * @param guiController The GUI controller for visual updates
-     * @param isPause Property tracking pause state
-     * @param clearLineSFX Sound effect for clearing lines
-     * @param brickLandSFX Sound effect for brick landing
+     * @param eventListener     The event listener for game logic
+     * @param guiController     The GUI controller for visual updates
+     * @param isPause           Property tracking pause state
+     * @param clearLineSFX      Sound effect for clearing lines
+     * @param brickLandSFX      Sound effect for brick landing
      * @param groupNotification UI group for displaying notifications
      */
-    public MoveDownHandler(InputEventListener eventListener,
-                           GuiController guiController,
-                           BooleanProperty isPause,
-                           ClearLineSFX clearLineSFX,
-                           BrickLandSFX brickLandSFX,
-                           Group groupNotification) {
-        this.eventListener = eventListener;
-        this.guiController = guiController;
-        this.isPause = isPause;
-        this.clearLineSFX = clearLineSFX;
-        this.brickLandSFX = brickLandSFX;
-        this.groupNotification = groupNotification;
+    public MoveDownHandler {
     }
 
     /**
@@ -56,28 +39,24 @@ public class MoveDownHandler {
     public void execute(MoveEvent event) {
         if (isPause.getValue() == Boolean.FALSE) {
             DownData downData = eventListener.onDownEvent(event);
-
-            // Handle row clearing and score notification
             if (downData.getClearRow() != null && downData.getClearRow().getLinesRemoved() > 0) {
                 playClearSound(downData.getClearRow().getLinesRemoved());
                 showScoreNotification(downData.getClearRow().getScoreBonus());
             }
 
-            // Play land sound when brick locks in place
             if (!downData.isMoved() && brickLandSFX != null) {
                 brickLandSFX.playLandSound();
             }
 
-            // Update brick position visually
             guiController.refreshBrick(downData.getViewData());
         }
 
-        // Keep the game window focused
+        //Keep the game window focused
         guiController.requestGamePanelFocus();
     }
 
     /**
-     * Plays the appropriate sound effect based on number of lines cleared
+     * Plays the SFX when lines are cleared
      */
     private void playClearSound(int linesRemoved) {
         if (clearLineSFX != null) {

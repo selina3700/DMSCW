@@ -24,7 +24,7 @@ public class HardDropHandler {
     /**
      * Creates a new HardDropHandler
      * @param eventListener The game's event listener
-     * @param guiController The GUI controller for visual updates
+     * @param guiController Visual updates
      */
     public HardDropHandler(InputEventListener eventListener, GuiController guiController) {
         this.eventListener = eventListener;
@@ -46,12 +46,11 @@ public class HardDropHandler {
     }
 
     /**
-     * Executes a hard drop - instantly drops the brick to the bottom
-     * @param isPaused Whether the game is currently paused
-     * @param isGameOver Whether the game is over
+     * Instantly drops the brick to the bottom of the board
+     * @param isPaused Check if game is currently paused
+     * @param isGameOver Check if the game is over
      */
     public void execute(boolean isPaused, boolean isGameOver) {
-        // Don't allow hard drop if game is paused or over
         if (isPaused || isGameOver) {
             return;
         }
@@ -60,7 +59,7 @@ public class HardDropHandler {
         MoveEvent downEvent = new MoveEvent(EventType.DOWN, EventSource.USER);
         DownData downData = null;
 
-        // Keep moving down until the brick can't move further
+        // Keep moving down until the brick reaches bottom
         while (canMoveDown) {
             downData = eventListener.onDownEvent(downEvent);
             if (!downData.isMoved()) {
@@ -68,15 +67,12 @@ public class HardDropHandler {
             }
         }
 
-        // Update the view with the final locked position
         if (downData != null) {
             guiController.refreshBrick(downData.getViewData());
 
             if (brickLandSFX != null) {
                 brickLandSFX.playLandSound();
             }
-
-            // Handle row clearing effects
             handleRowClearing(downData);
         }
     }
@@ -87,12 +83,10 @@ public class HardDropHandler {
      */
     private void handleRowClearing(DownData downData) {
         if (downData.getClearRow() != null && downData.getClearRow().getLinesRemoved() > 0) {
-            // Play sound effect
             if (clearSoundPlayer != null && !guiController.isSFXMuted()) {
                 clearSoundPlayer.play();
             }
 
-            // Show score notification
             NotificationPanel notificationPanel = new NotificationPanel(
                     "+" + downData.getClearRow().getScoreBonus()
             );

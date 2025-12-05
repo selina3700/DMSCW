@@ -53,15 +53,12 @@ public class KeyboardInputHandler {
                 if (isPause.getValue() == Boolean.FALSE && isGameOver.getValue() == Boolean.FALSE) {
                     handleGameplayKeys(keyEvent);
                 }
-
-                // Global keys (work even when paused)
-                handleGlobalKeys(keyEvent);
             }
         });
     }
 
     /**
-     * Handles keys that only work during active gameplay
+     * Handles keys that work during active gameplay
      */
     private void handleGameplayKeys(KeyEvent keyEvent) {
         KeyCode code = keyEvent.getCode();
@@ -98,14 +95,7 @@ public class KeyboardInputHandler {
             }
             keyEvent.consume();
         }
-    }
-
-    /**
-     * Handles keys that work regardless of game state
-     */
-    private void handleGlobalKeys(KeyEvent keyEvent) {
-        // Press "N" to start a new game
-        if (keyEvent.getCode() == KeyCode.N) {
+        else if (keyEvent.getCode() == KeyCode.N) {
             guiController.newGame(null);
             keyEvent.consume();
         }

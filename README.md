@@ -103,25 +103,25 @@ placing a block) was successful as well as creating a more engaging and immersiv
 **Goal:** Implement logic to award additional points for consecutive clears.
 
 ### Feature 2: Multiplayer Implementation
-**Description:** The current game mode is single-player. Features such as a leaderboard can be implemented to enourage
+**Description:** The current game mode is single-player. Features such as a leaderboard can be implemented to encourage
 competitive gameplay.
 
 **Goal:** Develop a leaderboard that is updated whenever someone beats the current highest scorer.
 ****
 ## New Java Classes
 ### Handlers
-| **Class Name**        | **Description**                                                                                                              |   
-|-----------------------|------------------------------------------------------------------------------------------------------------------------------|
-| `HardDropHandler`     | Manages the instant downward movement of the brick and locking it at the bottom of the board when the [SPACEBAR] is pressed. |
-| `MoveDownHandler`     | Controls the standard downward soft drop vertical movement of the falling brick.                                             |
-| `KeyboardInputHandler`| Maps key presses to game actions.                                                                                            |
+| **Class Name**         | **Description**                                                                                                              |   
+|------------------------|------------------------------------------------------------------------------------------------------------------------------|
+| `HardDropHandler`      | Manages the instant downward movement of the brick and locking it at the bottom of the board when the [SPACEBAR] is pressed. |
+| `MoveDownHandler`      | Controls the standard downward soft drop vertical movement of the falling brick.                                             |
+| `KeyboardInputHandler` | Maps key presses to game actions.                                                                                            |
 
 ### Managers
-| **Class Name**       | **Description**                                                      |
-|------------------|----------------------------------------------------------------------|
+| **Class Name**     | **Description**                                                      |
+|--------------------|----------------------------------------------------------------------|
 | `BgmManager`       | Controls the playback, looping and volume of the background music.   |
 | `GameStateManager` | Central class for tracking and switching between game states.        |
-| `MenuManager` | Manages which menu is currently being displayed and menu navigation. |
+| `MenuManager`      | Manages which menu is currently being displayed and menu navigation. |
 
 ### Menu
 
@@ -142,19 +142,19 @@ competitive gameplay.
 
 ### Rendering
 
-| **Class Name**  | **Description**                                                               |
-|-----------------|-------------------------------------------------------------------------------|
-| `BrickPreview`  | Renders the visual display of the next piece in the queue and the hold brick. |
+| **Class Name**  | **Description**                                                                       |
+|-----------------|---------------------------------------------------------------------------------------|
+| `BrickPreview`  | Renders the visual display of the next piece in the queue and the hold brick.         |
 | `BrickRenderer` | Renders the active falling brick and the static placed blocks on the main game board. |
-| `GhostPiece`    | Renders the transparent outline of the piece's projected landing spot.        |
+| `GhostPiece`    | Renders the transparent outline of the piece's projected landing spot.                |
 
 ### Sounds
 
-| **Class Name** | **Decription**                                               |
-|----------------|--------------------------------------------------------------|
+| **Class Name** | **Description**                                               |
+|----------------|---------------------------------------------------------------|
 | `BrickLandSFX` | Plays the sound effect when a falling brick locks into place. |
-| `ButtonSFX`    | Plays the sound effect when a buttons are clicked.           |
-| `ClearLineSFX` | Plays the sound effect when one or more lines are cleared.                                                             |
+| `ButtonSFX`    | Plays the sound effect when a buttons are clicked.            |
+| `ClearLineSFX` | Plays the sound effect when one or more lines are cleared.    |
 ****
 ## Modified Java Classes
 ### Controllers

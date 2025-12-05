@@ -11,6 +11,17 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.URL;
 
+/**
+ * This is the main application for TetrisJFX
+ * <p>
+ *     This class acts as the **entry point ** for the JavaFX application and is responsible for:
+ *     <ul>
+ *         <li>Initializing the primary Stage and Scene.</li>
+ *         <li>Loading the main FXML layout.</li>
+ *         <li>Managing the initial setup and switching of scenes.</li>
+ *     </ul>
+ * </p>
+ */
 public class Main extends Application {
 
     private static Stage primaryStage;
@@ -43,6 +54,15 @@ public class Main extends Application {
         guiController.showMainMenu();
     }
 
+    /**
+     * Initializes and starts a new game session
+     * <p>
+     *     Reloads the FXML layout to ensure a fresh UI state and creates a new GameController,
+     *     and sets the game scene's root to the newly loaded layout.
+     * </p>
+     * @param level The Starting level of the new game
+     * @throws IOException FXML cannot be loaded
+     */
     public static void startGame(int level) throws IOException {
         currentLevel = level;
 
@@ -56,6 +76,11 @@ public class Main extends Application {
         scene.setRoot(gameRoot);
     }
 
+    /**
+     * Returns the current instance of the GuiController
+     * for interacting with the game's graphical elements.
+     * @return The active {@code GuiController} instance
+     */
     public static GuiController getGuiController() {
         return guiController;
     }

@@ -14,6 +14,13 @@ import javafx.scene.input.MouseEvent;
 
 import java.io.IOException;
 
+/**
+ * Controller for the Main Menu screen
+ * <p>
+ *      Initializes the main menu visuals, level selection component and delegates
+ *      user action to the core application logic via {@code Main} and {@code GuiController}.
+ * </p>
+ */
 public class MainMenu {
 
     @FXML private StackPane root;
@@ -29,11 +36,25 @@ public class MainMenu {
         this.primaryStage = stage;
     }
 
+    /**
+     * Sets the main application controller to enable delegation of game control actions
+     * <p>
+     *     This method also synchronizes the SFX mute state for all interactive buttons.
+     * </p>
+     * @param guiController The main {@code GuiController} instance.
+     */
     public void setGuiController(GuiController guiController) {
         this.guiController = guiController;
         syncButtonStates();
     }
 
+    /**
+     * Initializes the controller after the FXML elements are loaded.
+     * <p>
+     *     Loads the main logo image and calls {@code createButtons()} to set up
+     *     menu actions.
+     * </p>
+     */
     @FXML
     private void initialize() {
         logoImage.setImage(new Image(getClass().getResource("/images/Tetris.png").toExternalForm()));
@@ -79,13 +100,15 @@ public class MainMenu {
         return btn;
     }
 
+    /**
+     * Initiates the game start sequence
+     * <p>
+     *      This stops the current menu BGM, calls {@code Main.startGame} with the currently selected level,
+     *      and starts the game BGM on the newly created game controller instance.
+     * </p>
+     */
     private void startGame() {
         try {
-            // stop current menu BGM
-            if (guiController != null) {
-                guiController.stopBgm();
-            }
-
             // start game
             Main.startGame(selectedLevel);
 
@@ -100,16 +123,27 @@ public class MainMenu {
         }
     }
 
+    /**
+     * Closes the main application window
+     */
     private void quitGame() {
         if (primaryStage != null) primaryStage.close();
     }
 
+    /**
+     * Delegates control to the {@code GuiController} to show the options menu overlay.
+     * The options menu is shown, attached to the current main menu {@code root} pane.
+     */
     private void optionsMenu() {
         if (guiController != null) {
             guiController.showOptionsMenu(root);
         }
     }
 
+    /**
+     * Returns the starting level currently selected by the user via the {@code LevelSelectorButton}
+     * @return The selected starting game level
+     */
     public int getSelectedLevel() {
         return selectedLevel;
     }

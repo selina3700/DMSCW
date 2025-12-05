@@ -13,6 +13,14 @@ import javafx.scene.layout.HBox;
 
 import java.io.IOException;
 
+/**
+ * Game Over overlay that's displayed when the game ends
+ * <p>
+ *     Handles the dynamic loading of its FXML layout, the graphics and
+ *     provides buttons to restart the game, return to main menu, access options
+ *     or quit the application.
+ * </p>
+ */
 public class GameOverPanel extends StackPane {
 
     @FXML private ImageView gameOverImage;
@@ -21,6 +29,9 @@ public class GameOverPanel extends StackPane {
 
     private GuiController guiController;
 
+    /**
+     * Constructs the panel by loading its FXML layout and initializing the visual hierarchy.
+     */
     public GameOverPanel() {
         // Load the FXML
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/gameOver.fxml"));
@@ -43,21 +54,34 @@ public class GameOverPanel extends StackPane {
         }
     }
 
+    /**
+     * Sets the main application controller to enable delegation of game control actions.
+     * <p>
+     *     This ensures that the SFX mute state of all buttons on the panel is synchronized
+     *     with the {@code GuiController}'s current state.
+     * </p>
+     * @param controller The main {@code GuiController} instance.
+     */
     public void setGuiController(GuiController controller) {
         this.guiController = controller;
         syncButtonStates();
     }
 
+    /**
+     * Initializes the controller after the FXML elements are loaded.
+     * <p>
+     *     Loads the "Game Over" image, creates the interactive {@code ButtonSFX}
+     *     instances for restart, menu, and quit actions and adds them to their respective containers.
+     * </p>
+     */
     @FXML
     private void initialize() {
-        // Load the Game Over image
         try {
             gameOverImage.setImage(new Image(getClass().getResource("/images/Game_Over.png").toExternalForm()));
         } catch (Exception e) {
             System.out.println("Game Over image not found: " + e.getMessage());
         }
 
-        // Create icon buttons (Home, Restart, Settings)
         ButtonSFX homeBtn = createIconButton(
                 "/images/Main_Menu_Button.png",
                 "/images/Main_Menu_After.png",
@@ -81,7 +105,6 @@ public class GameOverPanel extends StackPane {
 
         iconButtonContainer.getChildren().addAll(homeBtn, restartBtn, settingsBtn);
 
-        // Create Quit button
         ButtonSFX quitBtn = createIconButton(
                 "/images/Quit Button.png",
                 "/images/Quit_After.png",
@@ -92,6 +115,10 @@ public class GameOverPanel extends StackPane {
         quitButtonContainer.getChildren().add(quitBtn);
     }
 
+    /**
+     * Syncs SFX mute state for all buttons on the panel with the state managed
+     * by the {@code GuiController}.
+     */
     private void syncButtonStates() {
         if (guiController == null) return;
         boolean isMuted = guiController.isSFXMuted();
@@ -108,6 +135,15 @@ public class GameOverPanel extends StackPane {
         }
     }
 
+    /**
+     * Create customized buttons with SFX
+     * @param path Resource path for button image
+     * @param hoverPath Resource path when button is hovers/clicked
+     * @param width Width of button
+     * @param height Height of button
+     * @param action The {@code Runnable} action to execute on click
+     * @return A configured {@code ButtonSFX} instance
+     */
     private ButtonSFX createIconButton(String path, String hoverPath, double width, double height, Runnable action) {
         ButtonSFX btn = new ButtonSFX(path, hoverPath);
         btn.setFitWidth(width);
@@ -121,30 +157,40 @@ public class GameOverPanel extends StackPane {
         return btn;
     }
 
+    /**
+     * Hides the panel and delegates control to the {@code GuiController} to start a new game.
+     */
     private void restartGame() {
         if (guiController != null) {
             this.setVisible(false);
-            // CHANGED: Use newGame() which handles everything including pause button
             guiController.newGame(null);
         }
     }
 
+    /**
+     * Hides the panel and delegates control to the {@code GuiController}
+     */
     private void mainMenu() {
         if (guiController != null) {
             this.setVisible(false);
-            // CHANGED: showMainMenu will be handled by GameStateManager
             guiController.showMainMenu();
         }
     }
 
+    /**
+     * Hides the panel and delegates control to the {@code GuiController} to show the options menu,
+     * signaling that the menu was launched from the Game Over screen.
+     */
     private void optionsMenu() {
         if (guiController != null) {
-            // Hide game over temporarily while showing options
             this.setVisible(false);
             guiController.showOptionsMenuFromGameOver();
         }
     }
 
+    /**
+     * Retrieves the scene window and closes the application.
+     */
     private void quitGame() {
         if (guiController != null && guiController.getGamePanel() != null) {
             guiController.getGamePanel().getScene().getWindow().hide();

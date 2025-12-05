@@ -14,6 +14,14 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.media.AudioClip;
 import javafx.scene.text.Font;
 
+/**
+ * Controller for the Options Menu screen
+ * <p>
+ * This class manages the user interface for adjusting audio settings (Music and SFX),
+ * providing visual feedback for toggles, and handling navigation to the Controls Menu
+ * or back to the parent screen (Main Menu, Pause Menu, or Game Over screen).
+ *  </p>
+ */
 public class OptionsMenu {
 
     private ButtonSFX musicButtonRef;
@@ -40,80 +48,82 @@ public class OptionsMenu {
     @FXML private HBox iconButtonContainer;
     @FXML private StackPane optionsMenuRoot;
 
+    /**
+     * Sets the main application controller to enable delegation of game control actions
+     * <p>
+     *     This method also synchronizes the SFX mute state for all interactive buttons.
+     * </p>
+     * @param controller The main application {@code GuiController} instance.
+     */
     public void setGuiController(GuiController controller) {
-        System.out.println("=== OptionsMenu.setGuiController() called ===");
-        System.out.println("controller is null? " + (controller == null));
-
         this.guiController = controller;
         syncButtonStates();
     }
 
+    /**
+     * Ensures that the options menu can be opened from the game over screen
+     * @param fromGameOver {@code true} if the menu was opened from the Game Over panel.
+     */
     public void setOpenedFromGameOver(boolean fromGameOver) {
         this.openedFromGameOver = fromGameOver;
     }
 
-
+    /**
+     * Initializes the controller.
+     * <p>
+     *     Loads all the images like the logo and sounds, initializes
+     *     the audio toggle buttons, and sets up the layout and action handlers for all
+     *     wide navigation buttons.
+     * </p>
+     */
     @FXML
     private void initialize() {
-        try {
-            logoImage.setImage(new Image(getClass().getResource("/images/Tetris_2.png").toExternalForm()));
+        logoImage.setImage(new Image(getClass().getResource("/images/Tetris_2.png").toExternalForm()));
+        String soundPath = getClass().getResource("/buttonClick.mp3").toExternalForm();
+        this.buttonClickSound = new AudioClip(soundPath);
 
-            try {
-                String soundPath = getClass().getResource("/buttonClick.mp3").toExternalForm();
-                this.buttonClickSound = new AudioClip(soundPath);
-            } catch (Exception soundE) {
-                System.out.println("Button click sound not found: " + soundE.getMessage());
-            }
-
-        } catch (Exception e) {
-            System.out.println("Logo not found: " + e.getMessage());
-        }
-
+        //Button Images
         volumeOnImg = loadImage("/images/Volume_Button.png");
         volumeOffImg = loadImage("/images/Mute_Button.png");
         sfxOnImg = loadImage("/images/SFX_Button.png");
         sfxOffImg = loadImage("/images/SFX_Mute.png");
-
         musicButtonRef = createIconButton("/images/Volume_Button.png", "/images/Mute_Button.png", 65, 65, this::toggleMusic);
         sfxButtonRef = createIconButton("/images/SFX_Button.png", "/images/SFX_Mute.png", 65, 65, this::toggleSFX);
 
-        // ---------------------------------------------------------
-        // UPDATED: Using CSS for styling
-        // ---------------------------------------------------------
-
-        // We still need to load the font once so JavaFX knows it exists for the CSS to use it
+        //Font
         Font.loadFont(getClass().getResourceAsStream("/font/PixelifySans.ttf"), 28);
 
-        // Create Labels and apply CSS class
+        // Create Labels
         Label musicLabel = new Label("Music");
-        musicLabel.getStyleClass().add("button-label"); // <--- CSS Class
+        musicLabel.getStyleClass().add("button-label");
 
         Label sfxLabel = new Label("SFX");
-        sfxLabel.getStyleClass().add("button-label");   // <--- CSS Class
+        sfxLabel.getStyleClass().add("button-label");
 
-        // Group Music
+        //Group Music
         HBox musicGroup = new HBox(15);
         musicGroup.setAlignment(Pos.CENTER_LEFT);
         musicGroup.getChildren().addAll(musicButtonRef, musicLabel);
 
-        // Group SFX
+        //Group SFX
         HBox sfxGroup = new HBox(15);
         sfxGroup.setAlignment(Pos.CENTER_LEFT);
         sfxGroup.getChildren().addAll(sfxButtonRef, sfxLabel);
 
-        // Main Container
         iconButtonContainer.setAlignment(Pos.CENTER);
         iconButtonContainer.setSpacing(60);
         iconButtonContainer.getChildren().addAll(musicGroup, sfxGroup);
 
-        // ---------------------------------------------------------
-
+        //Wide buttons
         controlsButtonRef = createWideButton("/images/Controls_Button.png", "/images/Controls_After.png", 276, 57, this::goToControls);
         mainMenuButtonRef = createWideButton("/images/Main_Menu_2_Button.png", "/images/Main_Menu_2_After.png", 276, 57, this::goToMainMenu);
         backButtonRef = createWideButton("/images/Back_Button.png", "/images/Back_After.png", 276, 57, this::goBack);
         wideButtonContainer.getChildren().addAll(controlsButtonRef, mainMenuButtonRef, backButtonRef);
     }
 
+    /**
+     * Syncs the button states (SFX or BGM on/off with the current state held by the {@code GuiController}.
+     */
     public void syncButtonStates() {
         if (guiController != null) {
             musicOn = !guiController.isMusicMuted();
@@ -129,6 +139,9 @@ public class OptionsMenu {
         }
     }
 
+    /**
+     * Updates the SFX mute state for all the buttons on the options menu panel
+     */
     private void updateAllButtonSFX() {
         boolean muted = !sfxOn;
         if (musicButtonRef != null) musicButtonRef.setSFXMuted(muted);
@@ -138,6 +151,9 @@ public class OptionsMenu {
         if (backButtonRef != null) backButtonRef.setSFXMuted(muted);
     }
 
+    /**
+     * Updates the visual appearance of the BGM toggle button based on current {@code musicOn} state.
+     */
     private void updateMusicButtonVisual() {
         if (musicButtonRef != null && volumeOnImg != null && volumeOffImg != null) {
             if (musicOn) {
@@ -151,6 +167,9 @@ public class OptionsMenu {
         }
     }
 
+    /**
+     * Updates the visual appearance of the BGM toggle button based on current {@code sfxOn} state.
+     */
     private void updateSFXButtonVisual() {
         if (sfxButtonRef != null && sfxOnImg != null && sfxOffImg != null) {
             if (sfxOn) {
@@ -164,6 +183,15 @@ public class OptionsMenu {
         }
     }
 
+    /**
+     * Factory method to create an icon-style {@code ButtonSFX} with a click action.
+     * @param path Resource path for default image button
+     * @param hoverPath Resource path for hover image button
+     * @param width Width of the button
+     * @param height Height of the button
+     * @param action The {@code Runnable} action when the button is clicked
+     * @return A configured {@code ButtonSFX} instance
+     */
     private ButtonSFX createIconButton(String path, String hoverPath, double width, double height, Runnable action) {
         ButtonSFX btn = new ButtonSFX(path, hoverPath);
         btn.setFitWidth(width);
@@ -177,6 +205,15 @@ public class OptionsMenu {
         return btn;
     }
 
+    /**
+     * Factory method to create a wide-style {@code ButtonSFX} with a click action.
+     * @param path Resource path for default image button
+     * @param hoverPath Resource path for hover image button
+     * @param width Width of the button
+     * @param height Height of the button
+     * @param action The {@code Runnable} action when the button is clicked
+     * @return A configured {@code ButtonSFX} instance
+     */
     private ButtonSFX createWideButton(String path, String hoverPath, double width, double height, Runnable action) {
         ButtonSFX btn = new ButtonSFX(path, hoverPath);
         btn.setFitWidth(width);
@@ -190,27 +227,29 @@ public class OptionsMenu {
         return btn;
     }
 
+    /**
+     * Toggles the BGM (on/off)
+     * <p>
+     *      This flips the internal {@code musicOn} state, delegates the mute change to the
+     *      {@code GuiController}, and updates the visual appearance of the music button.
+     * </p>
+     */
     private void toggleMusic() {
-        System.out.println("=== toggleMusic() called ===");
-        System.out.println("musicOn BEFORE: " + musicOn);
-
-        // Flip the state
         musicOn = !musicOn;
-
-        System.out.println("musicOn AFTER: " + musicOn);
-        System.out.println("guiController is null? " + (guiController == null));
-
         if (guiController != null) {
-            boolean mute = !musicOn; // when musicOn = false, mute = true
-            System.out.println("Calling guiController.setMusicMuted(" + mute + ")");
+            boolean mute = !musicOn;
             guiController.setMusicMuted(mute);
-        } else {
-            System.out.println("ERROR: guiController is NULL - cannot toggle music!");
         }
-
         updateMusicButtonVisual();
     }
 
+    /**
+     * Toggles the SFX (on/off)
+     * <p>
+     *      This flips the internal {@code SFXOn} state, delegates the mute change to the
+     *      {@code GuiController}, and updates SFX-related visuals and volumes
+     * </p>
+     */
     private void toggleSFX() {
         boolean wasSFXOn = sfxOn;
         sfxOn = !sfxOn;
@@ -221,27 +260,25 @@ public class OptionsMenu {
         if (buttonClickSound != null) buttonClickSound.setVolume(sfxOn ? 1.0 : 0.0);
     }
 
+    /**
+     * Hides the Options Menu and displays the Controls Menu
+     * <p>
+     *     Includes logic to determine the parent to ensure seamless transition.
+     * </p>
+     */
     private void goToControls() {
-        System.out.println("=== goToControls() called ===");
-
         if (guiController == null) {
-            System.out.println("ERROR: guiController is NULL");
             return;
         }
 
-        // Try to find the StackPane root
         StackPane root = optionsMenuRoot;
 
-        // If optionsMenuRoot is null, traverse up to find it
         if (root == null) {
-            System.out.println("optionsMenuRoot is null, searching for StackPane...");
             javafx.scene.Parent current = wideButtonContainer.getParent();
 
             while (current != null) {
-                System.out.println("Checking parent: " + current.getClass().getSimpleName());
                 if (current instanceof StackPane) {
                     root = (StackPane) current;
-                    System.out.println("Found StackPane!");
                     break;
                 }
                 current = current.getParent();
@@ -249,13 +286,13 @@ public class OptionsMenu {
         }
 
         if (root != null) {
-            System.out.println("Opening controls menu with root: " + root.getClass().getSimpleName());
             guiController.showControlsMenuFromMenu(root);
-        } else {
-            System.out.println("ERROR: Could not find StackPane root for Controls Menu");
         }
     }
 
+    /**
+     * Hides the Options Menu and displays the Main Menu
+     */
     private void goToMainMenu() {
         if (guiController != null) {
             guiController.hideOptionsMenu();
@@ -263,21 +300,31 @@ public class OptionsMenu {
         }
     }
 
+    /**
+     * Hides the options menu and navigates back to the previous screen.
+     * <p>
+     * The destination depends on the {@code openedFromGameOver} flag and the current state
+     * of the {@code GuiController} (e.g., Pause Menu, Game Over Panel, or Main Menu).
+     * </p>
+     */
     private void goBack() {
         if (sfxOn && buttonClickSound != null) buttonClickSound.play();
         if (guiController != null) {
             guiController.hideOptionsMenu();
 
             if (openedFromGameOver) {
-                // Go back to game over screen - it's already visible, just show it
                 guiController.getGameOverPanel().setVisible(true);
             } else if (!guiController.isMainMenuOpen()) {
                 guiController.showPauseMenu();
             }
-            // If main menu is open, just closing options is enough
         }
     }
 
+    /**
+     * Loads an image from the resource path given
+     * @param path The resource path
+     * @return The loaded {@code Image} object, or {@code null}
+     */
     private Image loadImage(String path) {
         try {
             if (getClass().getResource(path) == null) return null;

@@ -13,6 +13,14 @@ import javafx.scene.text.Font;
 
 import java.util.function.Consumer;
 
+/**
+ * A custom interactive JavaFX component for cycling through and selecting
+ * the game level.
+ * <p>
+ *     This button increments the level within a defined range and provides visual and audio
+ *     feedback.
+ * </p>
+ */
 public class LevelSelectorButton extends StackPane {
 
     private int currentLevel = 1;
@@ -27,12 +35,21 @@ public class LevelSelectorButton extends StackPane {
     private boolean isSFXMuted = false;
     private Consumer<Integer> onLevelChange;
 
+    /**
+     * Constructs the LevelSelectorButton, initializing the visual appeareance,
+     * setting up mouse event handlers,
+     */
     public LevelSelectorButton() {
         setupButton();
         setupClickHandler();
         loadSFX();
     }
 
+    /**
+     * Initializes the visual elements of the button: loads normal/hover images,
+     * creates the {@code ImageView} and the {@code Label} for the level display,
+     * and assembles them within the {@code StackPane}.
+     */
     private void setupButton() {
         normalImage = new Image(getClass().getResource("/images/Level_Button.png").toExternalForm());
         hoverImage = new Image(getClass().getResource("/images/Level_After.png").toExternalForm());
@@ -65,6 +82,9 @@ public class LevelSelectorButton extends StackPane {
         setMaxHeight(57);
     }
 
+    /**
+     * Sets up the mouse event handlers for hover and click
+     */
     private void setupClickHandler() {
         setOnMouseEntered(this::onMouseEnter);
         setOnMouseExited(this::onMouseExit);
@@ -72,18 +92,32 @@ public class LevelSelectorButton extends StackPane {
         setCursor(javafx.scene.Cursor.HAND);
     }
 
+    /**
+     * Handles the mouse enter event by changing the button's image to the
+     * hover state
+     * @param e The mouse event triggering the hover.
+     */
     private void onMouseEnter(MouseEvent e) {
         if (hoverImage != null) {
             buttonImage.setImage(hoverImage);
         }
     }
 
+    /**
+     * Handles the mouse exit event by restoring the button's image to the
+     * hover state
+     * @param e The mouse event triggering the hover.
+     */
     private void onMouseExit(MouseEvent e) {
         if (normalImage != null) {
             buttonImage.setImage(normalImage);
         }
     }
 
+    /**
+     * Handles the mouse click event: increments the level, updates the display
+     * plays the click sound, and executes the {@code onLevelChange} callback.
+     */
     private void onMouseClick(MouseEvent e) {
         currentLevel++;
         if (currentLevel > MAX_LEVEL) {
@@ -98,20 +132,27 @@ public class LevelSelectorButton extends StackPane {
         }
     }
 
+    /**
+     * Updates the text of the internal label to show the current level.
+     */
     private void updateLevelDisplay() {
-        // CHANGED: Include "Level " prefix
         levelLabel.setText("Level " + currentLevel);
     }
 
+    /**
+     * Loads the audio resource for the button
+     */
     private void loadSFX() {
-        try {
-            Media sound = new Media(getClass().getResource("/sounds/buttonClick.mp3").toExternalForm());
-            clickSound = new MediaPlayer(sound);
-        } catch (Exception e) {
-            System.out.println("Click sound not found, using silent mode");
-        }
+        Media sound = new Media(getClass().getResource("/sounds/buttonClick.mp3").toExternalForm());
+        clickSound = new MediaPlayer(sound);
     }
 
+    /**
+     * Plays the button click sound effect if the SFX isn't muted
+     * <p>
+     *     Ensures that the sound restarts from the beginning if it was currently playing
+     * </p>
+     */
     private void playClickSound() {
         if (clickSound != null && !isSFXMuted) {
             clickSound.stop();
@@ -125,16 +166,5 @@ public class LevelSelectorButton extends StackPane {
 
     public void setOnLevelChange(Consumer<Integer> callback) {
         this.onLevelChange = callback;
-    }
-
-    public int getCurrentLevel() {
-        return currentLevel;
-    }
-
-    public void setCurrentLevel(int level) {
-        if (level >= MIN_LEVEL && level <= MAX_LEVEL) {
-            this.currentLevel = level;
-            updateLevelDisplay();
-        }
     }
 }

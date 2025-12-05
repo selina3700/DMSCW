@@ -3,6 +3,14 @@ package com.comp2042.managers;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 
+/**
+ * Manages the BGM throughout the gameplay
+ * <p>
+ *     This manager is responsible for controlling 2 separate tracks (main game BGM and game over)
+ *     and delegating the playback state (play, pause, mute).
+ * </p>
+ *
+ */
 public class BgmManager {
 
     private MediaPlayer currentPlayer;
@@ -21,17 +29,15 @@ public class BgmManager {
         gameOverPlayer.setCycleCount(1);
     }
 
-
     /**
-     * Plays BGM from the beginning (used for new game)
+     * Plays BGM from the beginning
      */
     public void playBgm() {
         restart();
     }
 
-
     /**
-     * Resumes BGM from where it was paused (used for unpause)
+     * Resumes BGM from where it was paused
      */
     public void resume() {
         if (currentPlayer != null && !muted) {
@@ -60,16 +66,14 @@ public class BgmManager {
     }
 
     /**
-     * Restarts BGM from the beginning (used for new game)
+     * Restarts BGM from the beginning
      */
     public void restart() {
         stopCurrent();
 
-        // Create a NEW MediaPlayer to avoid broken pause state
         bgmPlayer = new MediaPlayer(new Media(getClass().getResource(bgmPath).toExternalForm()));
         bgmPlayer.setCycleCount(MediaPlayer.INDEFINITE);
 
-        // preserve mute
         bgmPlayer.setMute(muted);
 
         currentPlayer = bgmPlayer;
@@ -78,7 +82,7 @@ public class BgmManager {
 
 
     /**
-     * Pauses the current music (preserves position)
+     * Pauses the current music
      */
     public void pause() {
         if (currentPlayer != null) {
