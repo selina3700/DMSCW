@@ -7,7 +7,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.layout.HBox; // Import HBox
+import javafx.scene.layout.HBox;
 
 /**
  * Controller for the Pause Menu screen

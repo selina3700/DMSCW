@@ -96,13 +96,28 @@ placing a block) was successful as well as creating a more engaging and immersiv
 
 **Benefit:** Keeps the randomization consistent and eliminates the chance of extreme good or bad luck sequences.
 ****
+## Features Implemented but Not Working Properly
+### Feature: Brick Spawn Location
+**Description:** The game is designed to spawn new bricks at the top of the board, however, the piece doesn't always 
+generate at the correct height. Particularly when starting a new game, the first piece appears 1 or 2 rows down from the
+intended height.
+
+**Impact:** Reduces the available time for the player to react to the piece, causing slight disadvantage at the start of 
+the game.
+
+****
 ## Features not Implemented
-### Feature 1: Combo System and Back-to-Back Bonuses
+### Feature 1: High Score
+**Description:** The game doesn't store the scores of the player and compares them to get the highest score.
+
+**Goal:** Adds a competitive twist for players for wanting to beat the current high score.
+
+### Feature 2: Combo System and Back-to-Back Bonuses
 **Description:** The game doesn't currently track sequential line clears and award special bonuses for them.
 
 **Goal:** Implement logic to award additional points for consecutive clears.
 
-### Feature 2: Multiplayer Implementation
+### Feature 3: Multiplayer Implementation
 **Description:** The current game mode is single-player. Features such as a leaderboard can be implemented to encourage
 competitive gameplay.
 
