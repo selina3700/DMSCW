@@ -122,6 +122,13 @@ the game.
 competitive gameplay.
 
 **Goal:** Develop a leaderboard that is updated whenever someone beats the current highest scorer.
+
+### Feature 4: Resizing as Score Increases
+**Description:** When the score exceeds a number of digits, it will transform to something like 12345... due to the lack 
+of space.
+
+**Goal:** Resize the layout accordingly to ensure that the entire score will always be properly displayed on the player's
+screen.
 ****
 ## New Java Classes
 ### Handlers
