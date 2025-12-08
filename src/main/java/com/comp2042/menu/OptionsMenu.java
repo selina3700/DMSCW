@@ -79,7 +79,7 @@ public class OptionsMenu {
     @FXML
     private void initialize() {
         logoImage.setImage(new Image(getClass().getResource("/images/Tetris_2.png").toExternalForm()));
-        String soundPath = getClass().getResource("/buttonClick.mp3").toExternalForm();
+        String soundPath = getClass().getResource("/sounds/buttonClick.mp3").toExternalForm();
         this.buttonClickSound = new AudioClip(soundPath);
 
         //Button Images
